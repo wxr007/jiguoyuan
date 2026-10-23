@@ -18,8 +18,6 @@ class PlayerControls extends StatefulWidget {
     required this.showOnPlaybackReady,
     required this.onFullscreen,
     required this.onBack,
-    required this.onPrevious,
-    required this.onNext,
     required this.title,
     required this.onTogglePlayback,
     required this.onEpisodes,
@@ -48,8 +46,6 @@ class PlayerControls extends StatefulWidget {
   final bool showOnPlaybackReady;
   final VoidCallback onFullscreen;
   final VoidCallback onBack;
-  final VoidCallback? onPrevious;
-  final VoidCallback? onNext;
   final String title;
   final VoidCallback onTogglePlayback;
   final Future<void> Function() onEpisodes;
@@ -187,15 +183,8 @@ class _PlayerControlsState extends State<PlayerControls> {
   void _tap() {
     if (widget.interactions.suppressTap) return;
     widget.onFocusSurface();
-    if (widget.swipeEnabled &&
-        MediaQuery.orientationOf(context) == Orientation.portrait &&
-        widget.enabled) {
-      widget.onTogglePlayback();
-      _show();
-    } else {
-      setState(() => _visible = !_visible);
-      _scheduleHide();
-    }
+    setState(() => _visible = !_visible);
+    _scheduleHide();
   }
 
   Future<void> _panel(Future<void> Function() open) async {
@@ -297,11 +286,6 @@ class _PlayerControlsState extends State<PlayerControls> {
                           children: [
                             if (widget.fullscreen || widget.swipeEnabled)
                               _topBar(),
-                            if (!state.buffering &&
-                                widget.enabled &&
-                                constraints.maxHeight >=
-                                    (widget.swipeEnabled ? 168 : 220))
-                              _centerPlayback(state.playing, showSkip: true),
                             _sideDanmakuControl(),
                             _bottomControls(
                               constraints: constraints,
@@ -382,39 +366,6 @@ class _PlayerControlsState extends State<PlayerControls> {
         onPressed: onPressed,
         icon: Icon(icon),
       ),
-    ),
-  );
-
-  Widget _centerPlayback(bool playing, {required bool showSkip}) => Center(
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (showSkip) ...[
-          IconButton(
-            tooltip: '上一集',
-            onPressed: widget.onPrevious,
-            icon: const Icon(Icons.skip_previous_rounded),
-          ),
-          const SizedBox(width: 12),
-        ],
-        IconButton.filledTonal(
-          tooltip: playing ? '暂停播放' : '开始播放',
-          iconSize: 38,
-          onPressed: () {
-            widget.onTogglePlayback();
-            _show();
-          },
-          icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
-        ),
-        if (showSkip) ...[
-          const SizedBox(width: 12),
-          IconButton(
-            tooltip: '下一集',
-            onPressed: widget.onNext,
-            icon: const Icon(Icons.skip_next_rounded),
-          ),
-        ],
-      ],
     ),
   );
 

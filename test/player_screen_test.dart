@@ -18,6 +18,14 @@ void main() {
     }
   }
 
+  Future<void> doubleTapSurface(WidgetTester tester) async {
+    final surface = find.byKey(const ValueKey('player-gesture-surface'));
+    await tester.tap(surface);
+    await tester.pump(const Duration(milliseconds: 60));
+    await tester.tap(surface);
+    await tester.pump();
+  }
+
   Future<void> mount(
     WidgetTester tester,
     RouteRepository repository,
@@ -76,7 +84,7 @@ void main() {
       await tester.pumpAndSettle();
       await player.seek(const Duration(seconds: 28));
       await tester.pump();
-      await tester.tap(find.byTooltip('暂停播放'));
+      await doubleTapSurface(tester);
       await settleOperations(tester);
       player.fail();
       await tester.pump();
