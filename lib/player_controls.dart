@@ -948,20 +948,25 @@ class _PlayerControlsState extends State<PlayerControls> {
     builder: (context, _) {
       final feedback = widget.interactions.feedback;
       if (feedback.isEmpty) return const SizedBox.shrink();
-      final topOffset = widget.fullscreen || widget.swipeEnabled
-          ? _topChromeInset() + 50
-          : 12.0;
       return IgnorePointer(
         child: Align(
           alignment: Alignment.topCenter,
           child: Container(
-            margin: EdgeInsets.fromLTRB(16, topOffset, 16, 16),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.black87,
-              borderRadius: BorderRadius.circular(10),
+              color: Colors.black.withValues(alpha: .42),
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(10),
+              ),
             ),
-            child: Text(feedback, textAlign: TextAlign.center),
+            child: Text(
+              feedback,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.white.withValues(alpha: .92),
+              ),
+            ),
           ),
         ),
       );
