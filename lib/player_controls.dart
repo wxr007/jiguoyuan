@@ -150,7 +150,14 @@ class _PlayerControlsState extends State<PlayerControls> {
   }
 
   void _interactionChanged() {
-    if (mounted && widget.interactions.feedback.isNotEmpty) _show();
+    if (!mounted) return;
+    final interactions = widget.interactions;
+    if (interactions.pointerBoosting) {
+      _hideTimer?.cancel();
+      if (_visible) setState(() => _visible = false);
+      return;
+    }
+    if (interactions.feedback.isNotEmpty && !interactions.speedHint) _show();
   }
 
   void _scheduleHide() {
@@ -211,7 +218,8 @@ class _PlayerControlsState extends State<PlayerControls> {
     final position = state.position.inMilliseconds / 1000;
     final buffered = state.buffer.inMilliseconds / 1000;
     final visible =
-        _visible || !state.playing || state.buffering || widget.panelOpen;
+        !widget.interactions.pointerBoosting &&
+        (_visible || !state.playing || state.buffering || widget.panelOpen);
     return MouseRegion(
       onHover: (_) => _show(),
       cursor: visible ? SystemMouseCursors.basic : SystemMouseCursors.none,
