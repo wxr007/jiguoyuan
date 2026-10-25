@@ -43,3 +43,6 @@ macos/Flutter/GeneratedPluginRegistrant.swift
 macos/Runner/GeneratedPluginRegistrant.*
 ios/DuanjuCore/*.xcframework/
 **/xcuserdata/
+!android/key.properties
+!android/duanju-release.jks
+!android/duanju-release.jks.base64.txt

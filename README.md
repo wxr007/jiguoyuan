@@ -95,7 +95,7 @@ Android 正式发布签名在仓库 Secrets 配置：
 | `ANDROID_KEY_ALIAS` | 密钥别名 |
 | `ANDROID_KEY_PASSWORD` | 密钥密码 |
 
-未配置时生成预览（debug 签名）APK，不同构建机的预览签名可能无法相互覆盖。
+仓库内已存放固定签名密钥 `android/duanju-release.jks` 与 `android/key.properties`，本地与 CI 构建使用同一签名，产物可相互覆盖升级；配置上述 Secrets 时以 Secrets 为准，签名不变。更换密钥会导致已安装版本无法覆盖，必须卸载重装。缺少上述文件且未配置 Secrets 时才会回退到 debug 签名，不同构建机的预览包无法相互覆盖。
 
 ## 开发与构建
 
