@@ -75,7 +75,7 @@ Flutter 多端独立短剧应用。站源请求、解析、下载和播放均在
 
 ## GitHub Actions
 
-推送 `main` / `master`、`v*` 标签、提交 PR，或手动运行 **Build app packages**，构建以下产物（保留 14 天）：
+推送 `main` / `master` 只构建两个版本的 Android APK；Windows、macOS、iOS 产物需推送 `v*` 标签或手动运行 **Build app packages** 才构建，构建以下产物（保留 14 天）：
 
 | 红果版 Artifact | 全站源版 Artifact | 内容 |
 | --- | --- | --- |
@@ -84,7 +84,9 @@ Flutter 多端独立短剧应用。站源请求、解析、下载和播放均在
 | `hongguojian-macos` | `zhenguojian-macos` | macOS 通用 `.app` ZIP 和 SHA256，未签名 |
 | `hongguojian-ios-unsigned` | `zhenguojian-ios-unsigned` | 未签名 `.app` ZIP 和 SHA256，不能直接当已签名 IPA 安装 |
 
-检查任务（checks）不阻断出包；暂停验证期间的 Flutter / Go 测试结果仅供参考。手动工作流 **Publish release** 从指定 run 收集产物创建 GitHub Release；**Convert unsigned iOS app to ipa** 把未签名 `.app` 包成 IPA 上传到指定 Release。
+检查任务（checks）不阻断出包，仅在提交 PR 或手动运行时执行；暂停验证期间的 Flutter / Go 测试结果仅供参考。手动工作流 **Publish release** 从指定 run 收集产物创建 GitHub Release；**Convert unsigned iOS app to ipa** 把未签名 `.app` 包成 IPA 上传到指定 Release。
+
+私有仓库的 Actions 分钟数按运行器倍率计费（Linux 1×、Windows 2×、macOS 10×），因此桌面端与 iOS 产物集中在打标签或手动运行时构建；只有 Android 随推送构建。
 
 Android 正式发布签名在仓库 Secrets 配置：
 
