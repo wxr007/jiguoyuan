@@ -38,6 +38,7 @@ EXCLUDED_PATTERNS = (
     '*.jar', '*.aar', '*.dll', '*.so', '*.dylib', '*.a', '*.o', '*.obj',
     '*.apk', '*.aab', '*.ipa', '*.exe', '*.zip', '*.7z', '*.tar', '*.gz',
     '*.tgz', '*.jks', '*.keystore', '*.p12', '*.pfx', '*.pem', '*.key',
+    '*jks.base64.txt',
     '*.suo', '*.user', '*.userosscache', '*.sln.docstates', '*.xcframework',
     '*.framework', '*.xcuserstate', '._*',
 )
