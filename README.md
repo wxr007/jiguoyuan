@@ -1,126 +1,130 @@
-# 赤果园 / 集果园
+# Chiguoyuan / Jiguoyuan
 
-Flutter 多端独立短剧应用。站源请求、解析、下载和播放均在设备上完成，不依赖旧项目、远程自建服务或第三方中转。原生核心为 Go（FFI 接入），播放器基于 media_kit / libmpv，合并与导出使用 FFmpegKit。
+English | **[中文](README_CN.md)**
 
-当前源码版本：**0.2.61+70（未验证开发快照）**。按 2026-09-21 的约定，功能优先、暂停集中测试与回归；未经设备验收的能力均标注"待验证"，不作为已通过验收的版本。
+A standalone, multi-platform short-drama player built with Flutter. Source requests, parsing, downloads and playback all happen on the device; the app does not depend on the legacy projects, a self-hosted remote service or a third-party relay. The native core is Go (loaded over FFI), the player is media_kit / libmpv, and merging and export use FFmpegKit.
 
-## 版本与编译选项
+Current source version: **0.2.61+70 (unverified development snapshot)**. Per the 2026-09-21 agreement, features come first and centralized testing/regression is on hold; anything not yet validated on a device is marked as pending verification and is not treated as an accepted build.
 
-| 编译方式 | 应用名称 | 可用站源 |
+## Editions and build options
+
+| Build | App name | Available sources |
 | --- | --- | --- |
-| 默认，不加参数 | 赤果园 | 仅红果 |
-| 构建脚本加 `--all-sources` | 集果园 | 全部站源 |
+| Default, no arguments | Chiguoyuan (赤果园) | Hongguo only |
+| Build script with `--all-sources` | Jiguoyuan (集果园) | All sources |
 
-这是编译选项，应用内不能切换。标题、桌面名称、窗口与分发文件名随编译选项变化；界面、站源调用、原生下载调度同时限制可用站源。两版保留同一应用标识与数据目录，可相互覆盖升级，切换版本保留追剧、观看记录、用户权限和下载记录；备份格式兼容。
+This is a compile-time option and cannot be switched inside the app. The window title, desktop name, window and distribution file names follow the option, and the interface, source calls and native download scheduler restrict sources accordingly. Both editions share the same application ID and data directory, so they can upgrade over each other; switching editions keeps favorites, watch history, user profiles and download records, and the backup format is compatible.
 
-## 功能概览
+## Features
 
-| 功能 | 说明 |
+| Feature | Details |
 | --- | --- |
-| 浏览与搜索 | 分类目录分页、在线搜索（红果带搜索联想）、榜单（红果热播 / 真人剧 / 漫剧 / AI 剧，全站源版另有黄豆、黄果榜）、分类推荐 |
-| 播放 | 画质、倍速、切集、横竖屏自适应、自动连播、自动切线、备用线路、播放错误重试；画面中央不显示播放与上下集按钮，单击显示或隐藏控制条、双击切换播放与暂停，长按临时 3 倍速时只保留顶部提示、不显示控制条与遮罩；设备内流服务代理 HLS 播放列表并重写，普通 MP4 流直通 |
-| 弹幕 | 红果在线播放弹幕，开关按用户保存，播放器侧边按钮控制 |
-| 追剧与历史 | 追剧、更新提醒、观看记录、断点续播，按本地用户隔离 |
-| 下载与离线 | 分集选画质下载、批量管理、断点续传、Android 后台服务、离线播放、目录迁移 |
-| 合并与导出 | 分集合并、本地成品库、Emby 导出（稳定编号与 NFO） |
-| 用户与权限 | 本地多用户、管理员密码、站源 / 下载权限分配、配置备份与恢复 |
-| 局域网互联 | mDNS 自动发现、HTTPS 直连、追剧与进度增量同步、推送续播（不经过服务器） |
-| 画质增强 | 物理输出尺寸适配、RAVU、动漫 CNN、FSRCNNX 等，仅 Windows 桌面端开放（移动端 / 电视端不初始化） |
-| Android TV | 自动识别电视、统一横屏、遥控焦点模型与选项对话框 |
-| 主题 | 浅色 / 深色 / 跟随系统 |
+| Browse and search | Paged category catalog, online search (with suggestions on Hongguo), rankings (Hongguo trending / live-action / animated / AI drama; the full edition adds Huangdou and Huangguo charts), category recommendations |
+| Playback | Quality, speed, episode switching, orientation adaptation, auto-play next, automatic route switching, fallback routes, playback error retry; no play or previous/next buttons in the middle of the picture — single tap shows or hides the controls, double tap toggles play/pause, and holding for temporary 3x speed shows only the top hint without the control bar or scrim; an on-device stream server proxies and rewrites HLS playlists while plain MP4 streams pass through |
+| Danmaku | Danmaku for Hongguo online playback, toggled per user from a button on the player side |
+| Following and history | Follow list, update reminders, watch history, resume from last position, isolated per local user |
+| Download and offline | Per-episode downloads at a chosen quality, batch management, resume, Android background service, offline playback, directory migration |
+| Merge and export | Episode merging, local finished-media library, Emby export with stable numbering and NFO |
+| Users and permissions | Local multi-user support, admin password, per-user source and download permissions, configuration backup and restore |
+| LAN interconnect | mDNS discovery, direct HTTPS connection, incremental sync of favorites and progress, push-to-resume without going through a server |
+| Video enhancement | Physical output size matching, RAVU, anime CNN, FSRCNNX and more, Windows desktop only (not initialized on mobile or TV) |
+| Android TV | Automatic TV detection, forced landscape, remote focus model and option dialogs |
+| Theme | Light / dark / follow system |
 
-站源可用性、清晰度和区域限制取决于源站及网络；应用不解除源站 VIP 或其他授权限制。
+Source availability, quality and regional restrictions depend on the source sites and your network. The app does not bypass source VIP or any other licensing restrictions.
 
-## 站源
+## Sources
 
-| 站源 | 浏览与播放 | 搜索 |
+Source names are romanized Chinese platform names; the app interface shows the original Chinese names.
+
+| Source | Browse and playback | Search |
 | --- | --- | --- |
-| 红果 | 真人剧、漫剧、AI 剧及分集 | 联网搜索与官网搜索联想 |
-| 黄豆（全站源版） | 列表、VIP 标记及分集 | 筛选已加载短剧 |
-| 剧果（全站源版） | 热门、最新、接口分类、详情及可播放分集；签名 Cookie 接入在线播放、预加载和下载，待验证 | 站源在线搜索，支持继续加载 |
-| 野果（全站源版） | 接口分类、目录、详情及分集；支持线路发现与备用线路，待验证 | 站源在线分页搜索 |
-| 帝果（全站源版） | 网页分类、目录、详情及分集；vplayer 签名解析，待验证 | 站源在线分页搜索 |
-| 黄果视频（全站源版） | 列表、详情及分集 | 筛选已加载短剧 |
-| 黄果 AI（全站源版） | 列表、分类、详情及分集；入口连接与播放恢复待外部条件，见 TODO P1-4 | 筛选已加载短剧 |
-| 黄果旧版（全站源版） | API 分类、列表、详情及分集 | 筛选已加载短剧 |
-| 芽果（全站源版） | 星芽接口分类、目录、详情及分集；登录令牌缓存，待验证 | 站源在线搜索 |
-| 猫果（全站源版） | 七猫签名接口目录、详情及分集，待验证 | 站源在线搜索 |
-| 饭果（全站源版） | 西饭搜索接口目录与详情，单页目录，待验证 | 站源在线搜索 |
-| 观果（全站源版） | 围观接口目录与分集；详情接口实测返回空数据，待验证 | 站源在线搜索 |
-| 河果（全站源版） | 河马网页 `__NEXT_DATA__` 目录、详情及分集，待验证 | 站源在线搜索（`POST /seo/video/6007`） |
-| 星果（全站源版） | 星星接口连载目录、详情及分集，待验证 | 站源在线搜索（`GET /novel-api/basedata/book/searchBook`） |
-| 花果（全站源版） | 网页分类、目录、详情及分集，待验证 | 站源在线搜索 |
-| 牛果（全站源版） | 接口 AES 目录、详情及分集，待验证 | 站源在线搜索 |
-| 网果（全站源版） | 网页分类、目录、详情及分集，待验证 | 站源在线搜索 |
-| 发果（全站源版） | 网页分类、目录、详情及分集，待验证 | 站源在线搜索 |
-| 皮果（全站源版） | 网页目录与详情；`ptt.red` 由 Cloudflare 校验拦截，当前 HTTP 方式无法通过 | 站源在线搜索 |
-| 伍果（全站源版） | 网页分类、目录、详情及分集，待验证 | 站源在线搜索 |
-| 青空（全站源版） | 番剧、剧场动画、特摄分类分页、详情及分集；源码移植，待验证 | 站源在线分页搜索 |
-| 鬼片（全站源版） | 鬼片、电视剧、动漫分类分页、详情及多线路分集；源码移植，待验证 | RSS 最新条目标题匹配（站点搜索接口已停用，命中范围限于最新一批影片） |
-| 韩小圈（全站源版） | 韩剧、韩国电影、综艺动漫分类分页、详情及分集；源码移植，待验证 | 站源在线分页搜索 |
+| Hongguo | Live-action, animated and AI dramas with episodes | Online search plus official search suggestions |
+| Huangdou (full) | List, VIP badges and episodes | Filter already-loaded dramas |
+| Juguo (full) | Trending, latest, API categories, detail and playable episodes; signed cookies for playback, preloading and downloads, pending verification | Online source search with load-more |
+| Yeguo (full) | API categories, catalog, detail and episodes; route discovery and fallback routes, pending verification | Paged online source search |
+| Diguo (full) | Web categories, catalog, detail and episodes; vplayer signature parsing, pending verification | Paged online source search |
+| Huangguo Video (full) | List, detail and episodes | Filter already-loaded dramas |
+| Huangguo AI (full) | List, categories, detail and episodes; entry connectivity and playback recovery blocked on external conditions, see TODO P1-4 | Filter already-loaded dramas |
+| Huangguo Classic (full) | API categories, list, detail and episodes | Filter already-loaded dramas |
+| Yaguo (full) | Xingya API categories, catalog, detail and episodes; login token caching, pending verification | Online source search |
+| Maoguo (full) | Qimao signed API catalog, detail and episodes, pending verification | Online source search |
+| Fanguo (full) | Xifan search API catalog and detail, single-page catalog, pending verification | Online source search |
+| Guanguo (full) | Weiguan API catalog and episodes; the detail API returns empty data in testing, pending verification | Online source search |
+| Heguo (full) | Hema web `__NEXT_DATA__` catalog, detail and episodes, pending verification | Online source search (`POST /seo/video/6007`) |
+| Xingguo (full) | Xingxing serialized API catalog, detail and episodes, pending verification | Online source search (`GET /novel-api/basedata/book/searchBook`) |
+| Huaguo (full) | Web categories, catalog, detail and episodes, pending verification | Online source search |
+| Niuguo (full) | AES-encrypted API catalog, detail and episodes, pending verification | Online source search |
+| Wangguo (full) | Web categories, catalog, detail and episodes, pending verification | Online source search |
+| Faguo (full) | Web categories, catalog, detail and episodes, pending verification | Online source search |
+| Piguo (full) | Web catalog and detail; `ptt.red` is blocked by a Cloudflare challenge and is not reachable over plain HTTP | Online source search |
+| Wuguo (full) | Web categories, catalog, detail and episodes, pending verification | Online source search |
+| Qingkong (full) | Paged anime, theatrical animation and tokusatsu categories, detail and episodes; ported source, pending verification | Paged online source search |
+| Guipian (full) | Paged horror, TV and anime categories, detail and multi-route episodes; ported source, pending verification | Title matching against the RSS latest entries (the site search API is retired, so matches are limited to the newest batch) |
+| Hanxiaoquan (full) | Paged K-drama, Korean film and variety/anime categories, detail and episodes; ported source, pending verification | Paged online source search |
 
-站源管理：每个入口显示缓存数量、分页位置、最近更新时间和错误，可分别更新、继续一页、补齐资料、停止任务和健康检测；检测结果持久保存，解析失败保留已有缓存。受限用户需由管理员分配站源权限，已有用户不会自动获得新增站源。
+Source management: each entry shows its cached count, paging position, last update time and error, and can be updated individually, advanced by one page, backfilled with detail, stopped, or health-checked; results are persisted and existing caches survive parse failures. Restricted users need a source permission assigned by an admin, and existing users do not automatically gain newly added sources.
 
-## 安装包与平台状态
+## Packages and platform status
 
-| 平台 | 状态 |
+| Platform | Status |
 | --- | --- |
-| Android 8.0+ 手机 | 源码 `0.2.61+70`；ARMv7 / ARM64 / x86_64 构建脚本与 Actions 产物可用，真实安装与运行待验收 |
-| Windows 10/11 x64 | ZIP 解压后运行 `hongguojian.exe` / `zhenguojian.exe`，保留所有 DLL 和 `data`；局域网原生发现依赖 Windows 10 1903+ |
-| macOS 12+ | ZIP 解压后运行 `hongguojian.app` / `zhenguojian.app`，Go 核心为 arm64 + x86_64 通用 dylib；未签名，首次打开需 `xattr -cr` 移除隔离属性；构建与运行待验收 |
-| Android TV | 与手机共用 Android 源码；遥控与电视布局待实机验收。电视横幅图片仍是改名前的文案，需在装有 Pillow 的环境执行 `python scripts/generate_brand_assets.py --font <中文字体路径>` 重新生成 |
-| iOS 15.1+ | 工程、Go 核心 XCFramework、媒体依赖与构建脚本齐备；播放页禁用硬件纹理加速规避 libmpv 退出；待 Xcode 构建与真机验收，没有已签名 IPA |
+| Android 8.0+ phones | Source `0.2.61+70`; build scripts and Actions artifacts for ARMv7 / ARM64 / x86_64 are available, installation and runtime verification pending |
+| Windows 10/11 x64 | Unzip and run `hongguojian.exe` / `zhenguojian.exe`, keeping all DLLs and the `data` directory; native LAN discovery requires Windows 10 1903+ |
+| macOS 12+ | Unzip and run `hongguojian.app` / `zhenguojian.app`; the Go core is a universal arm64 + x86_64 dylib; the bundle is unsigned, so the first launch needs `xattr -cr` to clear the quarantine attribute; build and runtime verification pending |
+| Android TV | Shares the Android source with phones; remote control and TV layout pending device verification. The TV banner images still carry the pre-rename wording and must be regenerated on a machine with Pillow via `python scripts/generate_brand_assets.py --font <CJK font path>` |
+| iOS 15.1+ | Project, Go core XCFramework, media dependencies and build scripts are in place; the player disables hardware texture acceleration to avoid libmpv exiting; awaiting Xcode build and device verification, no signed IPA yet |
 
-`INSTALL_FAILED_NO_MATCHING_ABIS` 表示 APK 与设备架构不匹配，请更换对应架构安装包。Android APK 默认压缩原生 `.so` 库，安装时由系统解压。
+`INSTALL_FAILED_NO_MATCHING_ABIS` means the APK does not match the device architecture; install the package for the right ABI. Android APKs store the native `.so` libraries compressed by default and the system extracts them during installation.
 
 ## GitHub Actions
 
-推送 `main` / `master` 只构建两个版本的 Android APK；Windows、macOS、iOS 产物需推送 `v*` 标签或手动运行 **Build app packages** 才构建，构建以下产物（保留 14 天）：
+Pushing to `main` / `master` builds only the two Android APKs. Windows, macOS and iOS artifacts are produced only when pushing a `v*` tag or manually running **Build app packages**. The following artifacts are built and kept for 14 days:
 
-| 红果版 Artifact | 全站源版 Artifact | 内容 |
+| Default edition artifact | Full edition artifact | Contents |
 | --- | --- | --- |
-| `hongguojian-android` | `zhenguojian-android` | 三种架构 APK 和 SHA256 |
-| `hongguojian-windows` | `zhenguojian-windows` | 完整 ZIP 和 SHA256 |
-| `hongguojian-macos` | `zhenguojian-macos` | macOS 通用 `.app` ZIP 和 SHA256，未签名 |
-| `hongguojian-ios-unsigned` | `zhenguojian-ios-unsigned` | 未签名 `.app` ZIP 和 SHA256，不能直接当已签名 IPA 安装 |
+| `hongguojian-android` | `zhenguojian-android` | APKs for three ABIs plus SHA256 |
+| `hongguojian-windows` | `zhenguojian-windows` | Complete ZIP plus SHA256 |
+| `hongguojian-macos` | `zhenguojian-macos` | Universal macOS `.app` ZIP plus SHA256, unsigned |
+| `hongguojian-ios-unsigned` | `zhenguojian-ios-unsigned` | Unsigned `.app` ZIP plus SHA256, not installable as a signed IPA |
 
-检查任务（checks）不阻断出包，仅在提交 PR 或手动运行时执行；暂停验证期间的 Flutter / Go 测试结果仅供参考。手动工作流 **Publish release** 从指定 run 收集产物创建 GitHub Release；**Convert unsigned iOS app to ipa** 把未签名 `.app` 包成 IPA 上传到指定 Release。
+The checks job never blocks packaging and runs only on pull requests or manual runs; Flutter and Go test results during the testing pause are informational only. The manual **Publish release** workflow collects artifacts from a chosen run into a GitHub Release; **Convert unsigned iOS app to ipa** packs an unsigned `.app` into an IPA and uploads it to a chosen Release.
 
-私有仓库的 Actions 分钟数按运行器倍率计费（Linux 1×、Windows 2×、macOS 10×），因此桌面端与 iOS 产物集中在打标签或手动运行时构建；只有 Android 随推送构建。
+Actions minutes on a private repository are billed by runner multiplier (Linux 1x, Windows 2x, macOS 10x), which is why desktop and iOS artifacts are built only on tags or manual runs; only Android builds on every push.
 
-Android 正式发布签名在仓库 Secrets 配置：
+Android release signing is configured through repository secrets:
 
-| Secret | 内容 |
+| Secret | Contents |
 | --- | --- |
-| `ANDROID_KEYSTORE_BASE64` | JKS 文件 Base64 |
-| `ANDROID_KEYSTORE_PASSWORD` | 签名文件密码 |
-| `ANDROID_KEY_ALIAS` | 密钥别名 |
-| `ANDROID_KEY_PASSWORD` | 密钥密码 |
+| `ANDROID_KEYSTORE_BASE64` | Base64 of the JKS file |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore password |
+| `ANDROID_KEY_ALIAS` | Key alias |
+| `ANDROID_KEY_PASSWORD` | Key password |
 
-仓库内已存放固定签名密钥 `android/duanju-release.jks` 与 `android/key.properties`，本地与 CI 构建使用同一签名，产物可相互覆盖升级；配置上述 Secrets 时以 Secrets 为准，签名不变。更换密钥会导致已安装版本无法覆盖，必须卸载重装。缺少上述文件且未配置 Secrets 时才会回退到 debug 签名，不同构建机的预览包无法相互覆盖。
+The repository already contains the fixed signing key `android/duanju-release.jks` together with `android/key.properties`, so local and CI builds share one signature and their artifacts can upgrade over each other; when the secrets above are configured they take precedence, with the same signature. Replacing the key makes installed versions impossible to upgrade in place, so they must be uninstalled and reinstalled. Only when those files are missing and no secrets are set does the build fall back to debug signing, in which case preview packages from different machines cannot upgrade over each other.
 
-## 开发与构建
+## Development and builds
 
-Flutter `3.47.4`、Dart `3.12+`、Go `1.24.1+`、Python `3.10+`。Android 需要 JDK 17、SDK 36、NDK `28.2.13676358`；Windows 需要 Visual Studio 的 C++ 桌面组件及 MinGW-w64 x64；macOS 与 iOS 需要 macOS、完整 Xcode 和 CocoaPods。
+Flutter `3.47.4`, Dart `3.12+`, Go `1.24.1+`, Python `3.10+`. Android needs JDK 17, SDK 36 and NDK `28.2.13676358`; Windows needs the Visual Studio C++ desktop workload and MinGW-w64 x64; macOS and iOS need macOS, a full Xcode installation and CocoaPods.
 
-构建脚本对子进程默认设置 `GOPROXY=https://goproxy.cn,direct`、`GOSUMDB=off`，不改全局配置；同名环境变量可覆盖。
+Build scripts set `GOPROXY=https://goproxy.cn,direct` and `GOSUMDB=off` for child processes without touching global configuration; environment variables of the same name override them.
 
 ~~~sh
-python3 scripts/build_android.py            # 红果版，可加 --abi arm64-v8a --cn-mirrors
+python3 scripts/build_android.py            # default edition, add --abi arm64-v8a --cn-mirrors
 python3 scripts/build_android.py --all-sources
-python3 scripts/build_windows.py            # Windows，红果版
+python3 scripts/build_windows.py            # Windows, default edition
 python3 scripts/build_windows.py --all-sources
-python3 scripts/build_macos.py              # macOS，红果版（未签名 ZIP）
+python3 scripts/build_macos.py              # macOS, default edition (unsigned ZIP)
 python3 scripts/build_macos.py --all-sources
-python3 scripts/build_ios.py                # iOS 未签名，可 --core-only --simulator
-python3 scripts/build_ios.py --export-options /path/to/ExportOptions.plist   # 自己签名导出 IPA
+python3 scripts/build_ios.py                # unsigned iOS, supports --core-only --simulator
+python3 scripts/build_ios.py --export-options /path/to/ExportOptions.plist   # sign and export an IPA yourself
 ~~~
 
-Windows PowerShell 也可用 `.\scripts\build_windows.ps1 [-AllSources] [-ChinaMirrors]`。
+Windows PowerShell also supports `.\scripts\build_windows.ps1 [-AllSources] [-ChinaMirrors]`.
 
-国内构建可使用 `--cn-mirrors` / `-ChinaMirrors`：Flutter/pub 使用 `storage.flutter-io.cn` / `pub.flutter-io.cn`，Android 依赖优先阿里云镜像；仅作用于本次构建，结束后恢复原锁文件与临时 Gradle 配置。
+Builds in mainland China can use `--cn-mirrors` / `-ChinaMirrors`: Flutter and pub use `storage.flutter-io.cn` / `pub.flutter-io.cn` and Android dependencies prefer the Aliyun mirror. This only affects the current build; the original lock file and temporary Gradle configuration are restored afterwards.
 
-首次本地调试先编译对应平台的 Go 核心：
+For first-time local debugging, build the Go core for the target platform first:
 
 ~~~sh
 python3 scripts/build_native.py --platform android --abi arm64-v8a
@@ -130,50 +134,50 @@ flutter pub get --enforce-lockfile
 flutter run
 ~~~
 
-调试全站源版时给 `build_native.py` 加 `--all-sources`，并用 `flutter run --dart-define=ALL_SOURCES=true`；脚本会同步设置 Dart 常量和 Go 编译参数，应用启动时检查二者是否一致。
+When debugging the full edition, pass `--all-sources` to `build_native.py` and run `flutter run --dart-define=ALL_SOURCES=true`; the script sets the Dart constant and the Go build flags together, and the app checks on startup that the two agree.
 
-产物在 `dist/android`、`dist/windows`、`dist/macos`、`dist/ios`，红果版以 `hongguojian-` 开头，全站源版以 `zhenguojian-` 开头，均附 SHA256SUMS。
+Artifacts land in `dist/android`, `dist/windows`, `dist/macos` and `dist/ios`. The default edition is prefixed with `hongguojian-` and the full edition with `zhenguojian-`; all come with SHA256SUMS.
 
-## 功能 TODO
+## Roadmap
 
-对照旧短剧库（`../短剧库`、`../果果剧库`）的功能清单。"两版"指默认赤果园与全站源集果园。Android 手机和 Windows 同为首要平台，Android TV 其次，iOS 最后。
+Compared against the feature list of the legacy drama libraries (`../短剧库`, `../果果剧库`). "Both editions" means the default Chiguoyuan and the full-source Jiguoyuan. Android phones and Windows are the primary platforms, Android TV comes next, iOS last.
 
-### 优先修复：分页、资料与数据边界（已实现，待集中验证）
+### Priority fixes: paging, metadata and data boundaries (implemented, awaiting centralized verification)
 
-| 编号 | 范围 | 说明 | 待验证要点 |
+| ID | Scope | Description | To verify |
 | --- | --- | --- | --- |
-| P1-R1 | 两版 | 总目录与分类保存实际 offset、会话、设备标识、分页签名及最后 ID，与目录同快照落盘 | 重启续载、会话过期、重叠页、分类独立续载 |
-| P1-R2 | 两版 | 移除 6000 条和 500 页静默上限，按 ID 合并持久保存；32 MiB 保存限制明确报错 | 第 6001 条、第 501 页、重启、跨分类去重 |
-| P1-R4 | 两版 | 详情字段补齐并贯通 Go / Dart 资料；详情与播放通知同 ID 列表及失败海报 | 跨页面回写、同 URL 失败重试、旧缓存 |
-| P1-R5 | 全站源版黄豆 | 优先识别明文 JSON 再走 AES 解码，保留 gzip 兼容与长 ID | 明文、密文、异常载荷 |
-| P1-R7 | 两版 | 下载索引加载失败禁止迁移重写，保留原文件 | 损坏 / 超大索引、写盘失败、迁移中断 |
-| P1-R8 | 两版 | 目录及站源记录写入失败传回页面并标明未保存，提供重试 | 文件冲突、空间 / 权限失败、重启 |
-| P1-R9 | 两版 | 区分首次启动与配置损坏；异常锁定访问，提供导出与管理员验证恢复 | 访客 / 管理员损坏、冷启动、恢复流程 |
-| P1-R10 | 两版 | 用户设置与记录检查保存结果，失败回滚快照，无法确认时锁定 | 写入失败、恢复中断、用户隔离、重启一致性 |
+| P1-R1 | Both | Total catalog and categories persist the real offset, session, device ID, paging signature and last ID in the same snapshot as the catalog | Resume after restart, expired session, overlapping pages, independent category resume |
+| P1-R2 | Both | Removed the silent 6000-item and 500-page caps; entries are merged by ID and persisted; the 32 MiB save limit reports a clear error | Item 6001, page 501, restart, cross-category deduplication |
+| P1-R4 | Both | Detail fields completed and carried through Go and Dart; detail and playback notifications share the ID list and failed posters | Cross-page write-back, retry of the same failed URL, stale caches |
+| P1-R5 | Full, Huangdou | Prefer plain-text JSON before AES decoding, keeping gzip support and long IDs | Plain text, cipher text, malformed payloads |
+| P1-R7 | Both | Download index load failures never rewrite a migration; the original file is kept | Corrupt or oversized indexes, disk write failures, interrupted migration |
+| P1-R8 | Both | Catalog and source-record write failures are reported back to the page as unsaved with a retry option | File conflicts, space or permission failures, restart |
+| P1-R9 | Both | First launch and corrupted configuration are distinguished; access is locked on anomalies with export and admin-verified recovery | Guest or admin corruption, cold start, recovery flow |
+| P1-R10 | Both | User settings and records check the save result, roll back to a snapshot on failure and lock when the state cannot be confirmed | Write failures, interrupted recovery, user isolation, restart consistency |
 
-### 功能完善
+### Feature completion
 
-| 编号 | 功能 | 状态与待验证内容 |
+| ID | Feature | Status and to verify |
 | --- | --- | --- |
-| P1-4 | 黄果 AI 播放恢复 | 外部连接阻塞：目录与已知入口在当前开发网络超时，需可通的入口与密钥 / 媒体链路后再验证真实播放 |
-| P1-6 | 红果分类推荐 | 已实现待验证：推荐游标、会话与去重记录持久化，失败保留当前内容 |
-| P1-7 | 排序与完整资料 | 已实现待验证：排序 / 筛选在标题栏，资料字段跨站透传 |
-| P2-8 | 资料字段与 VIP 三态 | 已实现待验证：未知 / 免费 / VIP 三态，未知不覆盖已知，站源管理支持分批补齐 |
-| P2-9 | Emby 导出完善 | 已实现待验证：稳定目录编号、Season 00、NFO 范围；改名补集、重复导出、Emby 扫描 |
-| P2-10 | 播放偏好与全屏交互 | 已实现待验证：画质 / 倍速 / 连播按用户保存进备份，全屏选集与键盘规则 |
-| P2-11 | 资料失败后继续推进 | 已实现待验证：失败重试时间与扫描位置持久化，404 冷却与退避 |
-| P3-1 | 网络与资源设置 | 已实现待验证：直连 / 自动 / 手动代理、目录并发与间隔，各平台代理与在途切换 |
-| P3-2 | 局域网追剧与续播同步 | 已实现待验证：自动发现、HTTPS 直连、增量合并与手动双向同步；各平台真实双端同步 |
-| P3-3 | 局域网推送播放 | 已实现待验证：复用设备连接推送续播，不传媒体地址、密钥或文件 |
-| P3-4 | 视频画质增强与超分 | 已实现待验证：仅 Windows 桌面端开放；效果与持续性能待集中验证 |
-| P3-5 | Android 画中画 | 已实现待验证：系统 PiP 接入；TV / Windows / iOS 未接入系统级画中画 |
+| P1-4 | Huangguo AI playback recovery | Blocked externally: the catalog and known entries time out on the current development network; real playback needs a reachable entry plus key and media chain |
+| P1-6 | Hongguo category recommendations | Implemented, pending verification: recommendation cursor, session and dedupe records persisted, current content kept on failure |
+| P1-7 | Sorting and complete metadata | Implemented, pending verification: sorting and filters in the title bar, metadata passed across sources |
+| P2-8 | Metadata fields and three-state VIP | Implemented, pending verification: unknown / free / VIP states, unknown never overwrites known, source management supports batched backfill |
+| P2-9 | Emby export polish | Implemented, pending verification: stable catalog numbering, Season 00, NFO scope; renames adding episodes, repeated exports, Emby scanning |
+| P2-10 | Playback preferences and fullscreen interaction | Implemented, pending verification: quality, speed and auto-play saved per user into backups, fullscreen episode picker and keyboard rules |
+| P2-11 | Continue after metadata failures | Implemented, pending verification: retry timing and scan position persisted, 404 cooldown and backoff |
+| P3-1 | Network and resource settings | Implemented, pending verification: direct / auto / manual proxy, catalog concurrency and interval, per-platform proxying and switching in flight |
+| P3-2 | LAN favorites and progress sync | Implemented, pending verification: auto discovery, direct HTTPS, incremental merge and manual two-way sync; real two-device sync per platform |
+| P3-3 | LAN push playback | Implemented, pending verification: reuses the device connection to push a resume request without transferring media URLs, keys or files |
+| P3-4 | Video enhancement and super-resolution | Implemented, pending verification: Windows desktop only; quality and sustained performance pending centralized verification |
+| P3-5 | Android picture-in-picture | Implemented, pending verification: system PiP integration; TV, Windows and iOS have no system-level PiP |
 
-旧项目的 Docker / HTTP 服务、浏览器注册与远程账号、跨设备服务端记录、在线 STRM 签名网关和远程 Emby 定时同步依赖常驻服务器，不作为本 App 的目标功能；对应能力是设备内用户与备份、原生播放器、本地媒体和 Emby 文件导出，以及不依赖服务器的局域网直连。
+The legacy project's Docker / HTTP service, browser registration and remote accounts, cross-device server-side records, online STRM signing gateway and scheduled remote Emby sync all depend on an always-on server, so they are out of scope for this app. The corresponding capabilities are on-device users and backups, a native player, local media and Emby file export, plus serverless LAN connections.
 
-## 源码同步与恢复
+## Source sync and recovery
 
-每次完成开发、修复或文档修改后执行 `python3 scripts/finish_task.py --message "本次实际完成的变更"`，将干净源码同步到同级 `../guoapp` 镜像并生成 `果园-YYYYMMDDHHMM.zip` 纯源码压缩包（不含 SDK、依赖目录、缓存与构建产物）。源码恢复以版本号、源码压缩包和本 README 为依据。同步规则由 `scripts/sync_source.py` 维护，可用 `--check` 校验一致性。
+After every completed development, fix or documentation change, run `python3 scripts/finish_task.py --message "what actually changed"` to sync clean source into the sibling `../guoapp` mirror and produce a `果园-YYYYMMDDHHMM.zip` source-only archive (no SDK, dependency directories, caches or build output). Source recovery relies on the version number, the source archive and this README. Sync rules live in `scripts/sync_source.py` and can be verified with `--check`.
 
-## 许可证与组件
+## License and components
 
-播放器使用 [media_kit](https://github.com/media-kit/media-kit) / libmpv，合并和导出使用 [FFmpegKit min-gpl](https://github.com/sk3llo/ffmpeg_kit_flutter)，含 FFmpeg、x264 / x265 等 GPL 媒体组件，各组件适用上游许可证。FFmpegKit 不参与正常播放或下载的转码；系统 FFmpeg 只用于开发验证，用户不用另装。
+The player uses [media_kit](https://github.com/media-kit/media-kit) / libmpv, and merging and export use [FFmpegKit min-gpl](https://github.com/sk3llo/ffmpeg_kit_flutter), which bundles FFmpeg, x264 / x265 and other GPL media components; each component keeps its upstream license. FFmpegKit does not transcode during normal playback or downloads; a system FFmpeg is only used for development verification and users do not need to install one.

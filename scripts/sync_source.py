@@ -16,7 +16,7 @@ SOURCE_DIRECTORIES = {
 }
 SOURCE_FILES = {
     '.gitattributes', '.gitignore', '.metadata', '.editorconfig',
-    'AGENTS.md', 'README.md', 'pubspec.yaml', 'pubspec.lock',
+    'AGENTS.md', 'README.md', 'README_CN.md', 'pubspec.yaml', 'pubspec.lock',
     'analysis_options.yaml', 'l10n.yaml', 'flutter_launcher_icons.yaml',
 }
 EXCLUDED_DIRECTORIES = {
@@ -50,7 +50,7 @@ EXCLUDED_PATHS = {
     'windows/flutter/generated_plugins.cmake',
 }
 REQUIRED_FILES = {
-    'AGENTS.md', 'README.md', 'pubspec.yaml', 'pubspec.lock', 'lib/main.dart',
+    'AGENTS.md', 'README.md', 'README_CN.md', 'pubspec.yaml', 'pubspec.lock', 'lib/main.dart',
     'native/go.mod', 'native/go.sum', 'native/bridge/main.go',
     'android/app/build.gradle.kts', 'android/gradle/wrapper/gradle-wrapper.properties',
     'windows/CMakeLists.txt', 'windows/flutter/CMakeLists.txt',
