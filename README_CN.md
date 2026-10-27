@@ -176,7 +176,7 @@ flutter run
 
 ## 源码同步与恢复
 
-每次完成开发、修复或文档修改后执行 `python3 scripts/finish_task.py --message "本次实际完成的变更"`，将干净源码同步到同级 `../guoapp` 镜像并生成 `花果山-YYYYMMDDHHMM.zip` 纯源码压缩包（不含 SDK、依赖目录、缓存与构建产物）。源码恢复以版本号、源码压缩包和本 README 为依据。同步规则由 `scripts/sync_source.py` 维护，可用 `--check` 校验一致性。
+每次完成开发、修复或文档修改后执行 `python3 scripts/finish_task.py --message "本次实际完成的变更"`，将干净源码同步到同级 `../guoapp` 镜像并生成 `果园-YYYYMMDDHHMM.zip` 纯源码压缩包（不含 SDK、依赖目录、缓存与构建产物）。源码恢复以版本号、源码压缩包和本 README 为依据。同步规则由 `scripts/sync_source.py` 维护，可用 `--check` 校验一致性。
 
 ## 许可证与组件
 

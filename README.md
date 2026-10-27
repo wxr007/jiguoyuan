@@ -178,7 +178,7 @@ The legacy project's Docker / HTTP service, browser registration and remote acco
 
 ## Source sync and recovery
 
-After every completed development, fix or documentation change, run `python3 scripts/finish_task.py --message "what actually changed"` to sync clean source into the sibling `../guoapp` mirror and produce a `花果山-YYYYMMDDHHMM.zip` source-only archive (no SDK, dependency directories, caches or build output). Source recovery relies on the version number, the source archive and this README. Sync rules live in `scripts/sync_source.py` and can be verified with `--check`.
+After every completed development, fix or documentation change, run `python3 scripts/finish_task.py --message "what actually changed"` to sync clean source into the sibling `../guoapp` mirror and produce a `果园-YYYYMMDDHHMM.zip` source-only archive (no SDK, dependency directories, caches or build output). Source recovery relies on the version number, the source archive and this README. Sync rules live in `scripts/sync_source.py` and can be verified with `--check`.
 
 ## License and components
 
