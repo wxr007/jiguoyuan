@@ -8,7 +8,7 @@ class BuildVariant:
 
     @property
     def name(self):
-        return '集果园' if self.all_sources else '赤果园'
+        return '花果山' if self.all_sources else '无花果'
 
     @property
     def slug(self):
@@ -40,4 +40,4 @@ class BuildVariant:
 
 def add_variant_argument(parser):
     parser.add_argument('--all-sources', action='store_true',
-                        help='构建包含全部站源的集果园；默认构建仅红果的赤果园')
+                        help='构建包含全部站源的花果山；默认构建仅红果的无花果')

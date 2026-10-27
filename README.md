@@ -1,17 +1,17 @@
-# Chiguoyuan / Jiguoyuan
+# Wuhuaguo / Huaguoshan
 
 English | **[中文](README_CN.md)**
 
 A standalone, multi-platform short-drama player built with Flutter. Source requests, parsing, downloads and playback all happen on the device; the app does not depend on the legacy projects, a self-hosted remote service or a third-party relay. The native core is Go (loaded over FFI), the player is media_kit / libmpv, and merging and export use FFmpegKit.
 
-Current source version: **0.2.61+70 (unverified development snapshot)**. Per the 2026-09-21 agreement, features come first and centralized testing/regression is on hold; anything not yet validated on a device is marked as pending verification and is not treated as an accepted build.
+Current source version: **0.2.62+71 (unverified development snapshot)**. Per the 2026-09-21 agreement, features come first and centralized testing/regression is on hold; anything not yet validated on a device is marked as pending verification and is not treated as an accepted build.
 
 ## Editions and build options
 
 | Build | App name | Available sources |
 | --- | --- | --- |
-| Default, no arguments | Chiguoyuan (赤果园) | Hongguo only |
-| Build script with `--all-sources` | Jiguoyuan (集果园) | All sources |
+| Default, no arguments | Wuhuaguo (无花果) | Hongguo only |
+| Build script with `--all-sources` | Huaguoshan (花果山) | All sources |
 
 This is a compile-time option and cannot be switched inside the app. The window title, desktop name, window and distribution file names follow the option, and the interface, source calls and native download scheduler restrict sources accordingly. Both editions share the same application ID and data directory, so they can upgrade over each other; switching editions keeps favorites, watch history, user profiles and download records, and the backup format is compatible.
 
@@ -69,7 +69,7 @@ Source management: each entry shows its cached count, paging position, last upda
 
 | Platform | Status |
 | --- | --- |
-| Android 8.0+ phones | Source `0.2.61+70`; build scripts and Actions artifacts for ARMv7 / ARM64 / x86_64 are available, installation and runtime verification pending |
+| Android 8.0+ phones | Source `0.2.62+71`; build scripts and Actions artifacts for ARMv7 / ARM64 / x86_64 are available, installation and runtime verification pending |
 | Windows 10/11 x64 | Unzip and run `hongguojian.exe` / `zhenguojian.exe`, keeping all DLLs and the `data` directory; native LAN discovery requires Windows 10 1903+ |
 | macOS 12+ | Unzip and run `hongguojian.app` / `zhenguojian.app`; the Go core is a universal arm64 + x86_64 dylib; the bundle is unsigned, so the first launch needs `xattr -cr` to clear the quarantine attribute; build and runtime verification pending |
 | Android TV | Shares the Android source with phones; remote control and TV layout pending device verification. The TV banner images still carry the pre-rename wording and must be regenerated on a machine with Pillow via `python scripts/generate_brand_assets.py --font <CJK font path>` |
@@ -79,7 +79,7 @@ Source management: each entry shows its cached count, paging position, last upda
 
 ## GitHub Actions
 
-Pushing to `main` / `master` builds only the full-edition (Jiguoyuan) Android APK. Windows, macOS and iOS artifacts are produced only when pushing a `v*` tag or manually running **Build app packages**. The following artifacts are built and kept for 14 days:
+Pushing to `main` / `master` builds only the full-edition (Huaguoshan) Android APK. Windows, macOS and iOS artifacts are produced only when pushing a `v*` tag or manually running **Build app packages**. The following artifacts are built and kept for 14 days:
 
 | Default edition artifact | Full edition artifact | Contents |
 | --- | --- | --- |
@@ -142,7 +142,7 @@ Artifacts land in `dist/android`, `dist/windows`, `dist/macos` and `dist/ios`. T
 
 ## Roadmap
 
-Compared against the feature list of the legacy drama libraries (`../短剧库`, `../果果剧库`). "Both editions" means the default Chiguoyuan and the full-source Jiguoyuan. Android phones and Windows are the primary platforms, Android TV comes next, iOS last.
+Compared against the feature list of the legacy drama libraries (`../短剧库`, `../果果剧库`). "Both editions" means the default Wuhuaguo and the full-source Huaguoshan. Android phones and Windows are the primary platforms, Android TV comes next, iOS last.
 
 ### Priority fixes: paging, metadata and data boundaries (implemented, awaiting centralized verification)
 
@@ -178,7 +178,7 @@ The legacy project's Docker / HTTP service, browser registration and remote acco
 
 ## Source sync and recovery
 
-After every completed development, fix or documentation change, run `python3 scripts/finish_task.py --message "what actually changed"` to sync clean source into the sibling `../guoapp` mirror and produce a `果园-YYYYMMDDHHMM.zip` source-only archive (no SDK, dependency directories, caches or build output). Source recovery relies on the version number, the source archive and this README. Sync rules live in `scripts/sync_source.py` and can be verified with `--check`.
+After every completed development, fix or documentation change, run `python3 scripts/finish_task.py --message "what actually changed"` to sync clean source into the sibling `../guoapp` mirror and produce a `花果山-YYYYMMDDHHMM.zip` source-only archive (no SDK, dependency directories, caches or build output). Source recovery relies on the version number, the source archive and this README. Sync rules live in `scripts/sync_source.py` and can be verified with `--check`.
 
 ## License and components
 
