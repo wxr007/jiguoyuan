@@ -68,7 +68,7 @@ def sign_bundle(application):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='构建红果鉴 / 真果鉴 macOS 核心和应用')
+    parser = argparse.ArgumentParser(description='构建赤果园 / 集果园 macOS 核心和应用')
     parser.add_argument('--core-only', action='store_true')
     add_variant_argument(parser)
     options = parser.parse_args()
