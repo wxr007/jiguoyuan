@@ -77,14 +77,16 @@ Flutter 多端独立短剧应用。站源请求、解析、下载和播放均在
 
 ## GitHub Actions
 
-推送 `main` / `master` 只构建两个版本的 Android APK；Windows、macOS、iOS 产物需推送 `v*` 标签或手动运行 **Build app packages** 才构建，构建以下产物（保留 14 天）：
+推送 `main` / `master` 只构建全站源版（集果园）的 Android APK；Windows、macOS、iOS 产物需推送 `v*` 标签或手动运行 **Build app packages** 才构建，构建以下产物（保留 14 天）：
 
 | 红果版 Artifact | 全站源版 Artifact | 内容 |
 | --- | --- | --- |
-| `hongguojian-android` | `zhenguojian-android` | 三种架构 APK 和 SHA256 |
+| — | `zhenguojian-android` | 三种架构 APK 和 SHA256 |
 | `hongguojian-windows` | `zhenguojian-windows` | 完整 ZIP 和 SHA256 |
 | `hongguojian-macos` | `zhenguojian-macos` | macOS 通用 `.app` ZIP 和 SHA256，未签名 |
 | `hongguojian-ios-unsigned` | `zhenguojian-ios-unsigned` | 未签名 `.app` ZIP 和 SHA256，不能直接当已签名 IPA 安装 |
+
+默认版 Android 产物已停用，Android 只出全站源版。
 
 检查任务（checks）不阻断出包，仅在提交 PR 或手动运行时执行；暂停验证期间的 Flutter / Go 测试结果仅供参考。手动工作流 **Publish release** 从指定 run 收集产物创建 GitHub Release；**Convert unsigned iOS app to ipa** 把未签名 `.app` 包成 IPA 上传到指定 Release。
 

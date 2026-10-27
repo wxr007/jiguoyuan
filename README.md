@@ -79,14 +79,16 @@ Source management: each entry shows its cached count, paging position, last upda
 
 ## GitHub Actions
 
-Pushing to `main` / `master` builds only the two Android APKs. Windows, macOS and iOS artifacts are produced only when pushing a `v*` tag or manually running **Build app packages**. The following artifacts are built and kept for 14 days:
+Pushing to `main` / `master` builds only the full-edition (Jiguoyuan) Android APK. Windows, macOS and iOS artifacts are produced only when pushing a `v*` tag or manually running **Build app packages**. The following artifacts are built and kept for 14 days:
 
 | Default edition artifact | Full edition artifact | Contents |
 | --- | --- | --- |
-| `hongguojian-android` | `zhenguojian-android` | APKs for three ABIs plus SHA256 |
+| — | `zhenguojian-android` | APKs for three ABIs plus SHA256 |
 | `hongguojian-windows` | `zhenguojian-windows` | Complete ZIP plus SHA256 |
 | `hongguojian-macos` | `zhenguojian-macos` | Universal macOS `.app` ZIP plus SHA256, unsigned |
 | `hongguojian-ios-unsigned` | `zhenguojian-ios-unsigned` | Unsigned `.app` ZIP plus SHA256, not installable as a signed IPA |
+
+The default-edition Android artifact is no longer built; Android ships the full edition only.
 
 The checks job never blocks packaging and runs only on pull requests or manual runs; Flutter and Go test results during the testing pause are informational only. The manual **Publish release** workflow collects artifacts from a chosen run into a GitHub Release; **Convert unsigned iOS app to ipa** packs an unsigned `.app` into an IPA and uploads it to a chosen Release.
 
