@@ -212,11 +212,30 @@ class MediaLibrary extends ChangeNotifier {
           )
           .toList()
         ..sort((a, b) => b.created.compareTo(a.created));
+  String? get exportRoot {
+    final configured = store.exportDirectory;
+    return configured.isEmpty ? root : configured;
+  }
+
+  File exportFile(String relative) {
+    final base = exportRoot;
+    if (base == null) throw AppFailure('导出目录尚未就绪');
+    final file = path.join(base, relative);
+    if (!path.isWithin(base, file)) throw AppFailure('导出路径无效');
+    return File(file);
+  }
+
   String fileFor(LocalMediaItem item) {
+    final base = exportRoot;
+    if (base == null) throw AppFailure('媒体目录尚未就绪');
+    final exported = path.join(base, item.file);
+    if (path.isWithin(base, exported) && File(exported).existsSync()) {
+      return exported;
+    }
     if (root == null) throw AppFailure('媒体目录尚未就绪');
-    final file = path.join(root!, item.file);
-    if (!path.isWithin(root!, file)) throw AppFailure('媒体路径无效');
-    return file;
+    final legacy = path.join(root!, item.file);
+    if (!path.isWithin(root!, legacy)) throw AppFailure('媒体路径无效');
+    return legacy;
   }
 
   Future<void> reload({bool duringTask = false}) async {
@@ -501,7 +520,7 @@ class MediaLibrary extends ChangeNotifier {
           'Season 01',
           'S01E${job.episode.number.toString().padLeft(3, '0')}.mkv',
         );
-        final target = File(path.join(root!, relative));
+        final target = exportFile(relative);
         await target.parent.create(recursive: true);
         await File(intermediate).rename(target.path);
         await _exportMetadata(job, target);

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -195,6 +196,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
     () => widget.store.setExportPosters(!widget.store.exportPosters),
   );
 
+  Future<void> _pickExportDirectory() async {
+    if (Platform.isAndroid && !await AppDevice.exportStorageAccess()) {
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('需要所有文件访问权限'),
+          content: const Text(
+            '导出到公共目录（如下载、影片目录）需要系统授予“所有文件访问”权限。'
+            '授权后返回本页再选择目录；仅使用应用自己的目录时不需要授权。',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('取消'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(context);
+                unawaited(AppDevice.openExportStorageSettings());
+              },
+              child: const Text('去授权'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    final selected = await FilePicker.getDirectoryPath(dialogTitle: '选择导出目录');
+    if (selected == null || !mounted) return;
+    try {
+      await Directory(selected).create(recursive: true);
+      final probe = File('$selected/.duanju-write-test');
+      await probe.writeAsString('ok', flush: true);
+      await probe.delete();
+    } catch (error) {
+      if (mounted) setState(() => _message = '该目录不可写：$error');
+      return;
+    }
+    try {
+      await widget.store.setExportDirectory(selected);
+      if (mounted) setState(() => _message = null);
+    } catch (error) {
+      if (mounted) setState(() => _message = error.toString());
+    }
+  }
+
+  Future<void> _resetExportDirectory() async {
+    try {
+      await widget.store.setExportDirectory('');
+      if (mounted) setState(() => _message = null);
+    } catch (error) {
+      if (mounted) setState(() => _message = error.toString());
+    }
+  }
+
   List<({String id, IconData icon, String title, String subtitle, VoidCallback? onPressed})>
   _televisionEntries() => [
     (
@@ -301,6 +358,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ? '已开启 · 同时写入海报文件'
             : '已关闭 · 只写海报 URL',
         onPressed: _busy ? null : _toggleExportPosters,
+      ),
+      (
+        id: 'export-directory',
+        icon: Icons.drive_folder_upload_outlined,
+        title: '导出目录',
+        subtitle: widget.store.exportDirectory.isEmpty
+            ? '跟随下载目录，导出到其中的 exports 子目录'
+            : widget.store.exportDirectory,
+        onPressed: _busy ? null : _pickExportDirectory,
       ),
       (
         id: 'backup',
@@ -443,7 +509,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   value: widget.store.autoExport,
                   title: const Text('下载完成后自动导出 Emby'),
                   subtitle: const Text(
-                    '在下载目录的 exports 中生成视频和海报 URL 元数据，可将该目录加入 Emby 媒体库。',
+                    '在导出目录的 exports 中生成视频和海报 URL 元数据，可将该目录加入 Emby 媒体库。',
                   ),
                   onChanged: _busy
                       ? null
@@ -469,6 +535,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       : (value) => saveUserChange(
                           context,
                           () => widget.store.setExportPosters(value),
+                        ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.drive_folder_upload_outlined),
+                  title: const Text('导出目录'),
+                  subtitle: Text(
+                    widget.store.exportDirectory.isEmpty
+                        ? '跟随下载目录，导出到其中的 exports 子目录'
+                        : widget.store.exportDirectory,
+                  ),
+                  onTap: _busy ? null : _pickExportDirectory,
+                  trailing: widget.store.exportDirectory.isEmpty
+                      ? const Icon(Icons.chevron_right_rounded)
+                      : IconButton(
+                          tooltip: '恢复默认导出目录',
+                          onPressed: _busy ? null : _resetExportDirectory,
+                          icon: const Icon(Icons.restart_alt_rounded),
                         ),
                 ),
                 ListTile(

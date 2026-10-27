@@ -248,6 +248,7 @@ class LocalStore extends ChangeNotifier {
 
   bool get autoExport => !locked && (_bool('autoExport') ?? false);
   bool get exportPosters => !locked && (_bool('exportPosters') ?? false);
+  String get exportDirectory => locked ? '' : (_string('exportDirectory') ?? '');
   String get source {
     if (locked) return '';
     final value = _string(_key('source')) ?? '';
@@ -401,6 +402,8 @@ class LocalStore extends ChangeNotifier {
 
   Future<void> setExportPosters(bool value) =>
       _setting('exportPosters', value, admin: true);
+  Future<void> setExportDirectory(String value) =>
+      _setting('exportDirectory', value, admin: true);
   Future<void> setAutoExport(bool value) =>
       _setting('autoExport', value, admin: true);
   Future<void> setForceLogin(bool value) =>
@@ -867,6 +870,7 @@ class LocalStore extends ChangeNotifier {
       'themeMode': themeMode,
       'autoExport': autoExport,
       'exportPosters': exportPosters,
+      'exportDirectory': exportDirectory,
       'forceLogin': forceLogin,
       'libraries': {
         for (final profile in _profiles)
@@ -994,6 +998,9 @@ class LocalStore extends ChangeNotifier {
       'themeMode': data['themeMode'] as String? ?? themeMode,
       'autoExport': data['autoExport'] == true,
       'exportPosters': data['exportPosters'] == true,
+      'exportDirectory': data['exportDirectory'] is String
+          ? data['exportDirectory'] as String
+          : '',
       'forceLogin': data['forceLogin'] is bool
           ? data['forceLogin'] as bool
           : profiles.firstWhere((profile) => profile.admin).protected,

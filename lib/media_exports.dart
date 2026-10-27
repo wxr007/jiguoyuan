@@ -125,7 +125,7 @@ extension MediaExportOperations on MediaLibrary {
         'Season 00',
         'S00E${number.toString().padLeft(3, '0')}.mkv',
       );
-      final target = File(path.join(root!, relative));
+      final target = exportFile(relative);
       final staged = File(path.join(temporary.path, 'special.mkv'));
       await _copyOutput(file, staged, source.bytes);
       final checked = await executor.probe(staged.path);

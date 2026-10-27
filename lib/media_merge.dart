@@ -322,7 +322,7 @@ extension MediaMergeOperations on MediaLibrary {
     verifyMediaDuration(checked, duration);
     await _decodeOutput(output, checked.duration);
     final relative = path.join('library', id, 'full.mkv');
-    final target = File(path.join(root!, relative));
+    final target = exportFile(relative);
     await target.parent.create(recursive: true);
     _check();
     await File(output).rename(target.path);

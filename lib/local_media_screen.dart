@@ -273,14 +273,14 @@ class _LocalMediaScreenState extends State<LocalMediaScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      '将 exports 目录加入 Emby 电视节目库，可读取分集名称和海报元数据。自动导出可在设置中开启。',
+                      '将导出目录下的 exports 加入 Emby 电视节目库，可读取分集名称和海报元数据。导出目录与自动导出可在设置中调整。',
                     ),
                     if (library.root != null)
                       TextButton.icon(
                         onPressed: () => Clipboard.setData(
                           ClipboardData(
                             text:
-                                '${library.root}${Platform.pathSeparator}exports',
+                                '${library.exportRoot ?? library.root}${Platform.pathSeparator}exports',
                           ),
                         ),
                         icon: const Icon(Icons.copy),

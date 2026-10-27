@@ -18,6 +18,8 @@ import android.content.res.Configuration
 import android.graphics.Rect
 import android.net.ConnectivityManager
 import android.net.Uri
+import android.os.Environment
+import android.provider.Settings
 import android.util.Rational
 import android.view.InputDevice
 import io.flutter.embedding.engine.FlutterEngine
@@ -114,6 +116,27 @@ class MainActivity : FlutterActivity() {
         super.onSaveInstanceState(outState)
     }
 
+    private fun hasExportStorageAccess(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return true
+        return Environment.isExternalStorageManager()
+    }
+
+    private fun openExportStorageSettings() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+            )
+            return
+        }
+        val direct = Intent(
+            Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+            Uri.parse("package:$packageName")
+        )
+        if (runCatching { startActivity(direct) }.isFailure) {
+            startActivity(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+        }
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         deviceChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "duanju/device")
@@ -155,6 +178,14 @@ class MainActivity : FlutterActivity() {
                             ))
                         }
                         "pictureInPictureStatus" -> result.success(pictureInPictureStatus())
+                        "exportStorageAccess" -> result.success(hasExportStorageAccess())
+                        "openExportStorageSettings" -> {
+                            runCatching { openExportStorageSettings() }
+                                .onSuccess { result.success(null) }
+                                .onFailure {
+                                    result.error("settings_unavailable", "无法打开存储权限设置", null)
+                                }
+                        }
                         "enterPictureInPicture" -> {
                             val width = call.argument<Int>("width") ?: 16
                             val height = call.argument<Int>("height") ?: 9

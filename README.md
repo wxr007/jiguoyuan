@@ -4,7 +4,7 @@ English | **[中文](README_CN.md)**
 
 A standalone, multi-platform short-drama player built with Flutter. Source requests, parsing, downloads and playback all happen on the device; the app does not depend on the legacy projects, a self-hosted remote service or a third-party relay. The native core is Go (loaded over FFI), the player is media_kit / libmpv, and merging and export use FFmpegKit.
 
-Current source version: **0.2.62+71 (unverified development snapshot)**. Per the 2026-09-21 agreement, features come first and centralized testing/regression is on hold; anything not yet validated on a device is marked as pending verification and is not treated as an accepted build.
+Current source version: **0.2.63+72 (unverified development snapshot)**. Per the 2026-09-21 agreement, features come first and centralized testing/regression is on hold; anything not yet validated on a device is marked as pending verification and is not treated as an accepted build.
 
 ## Editions and build options
 
@@ -24,7 +24,7 @@ This is a compile-time option and cannot be switched inside the app. The window 
 | Danmaku | Danmaku for Hongguo online playback, toggled per user from a button on the player side |
 | Following and history | Follow list, update reminders, watch history, resume from last position, isolated per local user |
 | Download and offline | Per-episode downloads at a chosen quality, batch management, resume, Android background service, offline playback, directory migration |
-| Merge and export | Episode merging, local finished-media library, Emby export with stable numbering and NFO |
+| Merge and export | Episode merging, local finished-media library, Emby export with stable numbering and NFO; the export directory is configurable in settings and receives both merged output and Emby exports, with public folders available on Android after granting all-files access |
 | Users and permissions | Local multi-user support, admin password, per-user source and download permissions, configuration backup and restore |
 | LAN interconnect | mDNS discovery, direct HTTPS connection, incremental sync of favorites and progress, push-to-resume without going through a server |
 | Video enhancement | Physical output size matching, RAVU, anime CNN, FSRCNNX and more, Windows desktop only (not initialized on mobile or TV) |
@@ -69,7 +69,7 @@ Source management: each entry shows its cached count, paging position, last upda
 
 | Platform | Status |
 | --- | --- |
-| Android 8.0+ phones | Source `0.2.62+71`; build scripts and Actions artifacts for ARMv7 / ARM64 / x86_64 are available, installation and runtime verification pending |
+| Android 8.0+ phones | Source `0.2.63+72`; build scripts and Actions artifacts for ARMv7 / ARM64 / x86_64 are available, installation and runtime verification pending |
 | Windows 10/11 x64 | Unzip and run `hongguojian.exe` / `zhenguojian.exe`, keeping all DLLs and the `data` directory; native LAN discovery requires Windows 10 1903+ |
 | macOS 12+ | Unzip and run `hongguojian.app` / `zhenguojian.app`; the Go core is a universal arm64 + x86_64 dylib; the bundle is unsigned, so the first launch needs `xattr -cr` to clear the quarantine attribute; build and runtime verification pending |
 | Android TV | Shares the Android source with phones; remote control and TV layout pending device verification. The TV banner images still carry the pre-rename wording and must be regenerated on a machine with Pillow via `python scripts/generate_brand_assets.py --font <CJK font path>` |
