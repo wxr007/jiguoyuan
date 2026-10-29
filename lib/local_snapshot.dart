@@ -32,6 +32,7 @@ class LocalSnapshot {
     'themeMode',
     'autoExport',
     'exportPosters',
+    'exportDirectory',
     'forceLogin',
   };
   final SharedPreferences preferences;
