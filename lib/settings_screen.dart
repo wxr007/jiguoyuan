@@ -235,19 +235,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) setState(() => _message = '未获取到所选目录的路径，请重试。');
       return;
     }
-    selected = selected.trim();
-    while (selected.length > 1 && selected.endsWith('/')) {
-      selected = selected.substring(0, selected.length - 1);
-    }
+    final directory = _trimTrailingSlashes(selected!.trim());
     final looksAbsolute =
-        selected.startsWith('/') || selected.startsWith(RegExp(r'[A-Za-z]:[\\/]'));
+        directory.startsWith('/') ||
+        directory.startsWith(RegExp(r'[A-Za-z]:[\\/]'));
     if (!looksAbsolute) {
-      if (mounted) setState(() => _message = '路径无效，请选择或输入完整目录路径：$selected');
+      if (mounted) {
+        setState(() => _message = '路径无效，请选择或输入完整目录路径：$directory');
+      }
       return;
     }
     try {
-      await Directory(selected).create(recursive: true);
-      final probe = File('$selected/.duanju-write-test');
+      await Directory(directory).create(recursive: true);
+      final probe = File('$directory/.duanju-write-test');
       await probe.writeAsString('ok', flush: true);
       await probe.delete();
     } catch (error) {
@@ -255,16 +255,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return;
     }
     try {
-      await widget.store.setExportDirectory(selected);
+      await widget.store.setExportDirectory(directory);
       if (mounted) {
         setState(() => _message = null);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('导出目录已保存：$selected')),
+          SnackBar(content: Text('导出目录已保存：$directory')),
         );
       }
     } catch (error) {
       if (mounted) setState(() => _message = error.toString());
     }
+  }
+
+  String _trimTrailingSlashes(String value) {
+    var result = value;
+    while (result.length > 1 && result.endsWith('/')) {
+      result = result.substring(0, result.length - 1);
+    }
+    return result;
   }
 
   Future<String?> _inputExportDirectory() {
