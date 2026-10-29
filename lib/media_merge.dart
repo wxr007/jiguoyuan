@@ -325,7 +325,7 @@ extension MediaMergeOperations on MediaLibrary {
     final target = exportFile(relative);
     await target.parent.create(recursive: true);
     _check();
-    await File(output).rename(target.path);
+    await _transferOutput(File(output), target);
     final item = LocalMediaItem(
       id: id,
       drama: jobs.first.drama,

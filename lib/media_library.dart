@@ -323,6 +323,32 @@ class MediaLibrary extends ChangeNotifier {
     await temporary.rename(target.path);
   }
 
+  Future<void> _transferOutput(File source, File target) async {
+    try {
+      await source.rename(target.path);
+      return;
+    } on FileSystemException {
+      _check();
+    }
+    final output = await target.open(mode: FileMode.write);
+    try {
+      await for (final block in source.openRead()) {
+        _check();
+        await output.writeFrom(block);
+      }
+      await output.flush();
+    } catch (_) {
+      try {
+        if (await target.exists()) await target.delete();
+      } catch (_) {}
+      rethrow;
+    } finally {
+      await output.close();
+    }
+    _check();
+    await source.delete();
+  }
+
   Future<void> _save() async {
     final content = jsonEncode({
       'items': _items.map((item) => item.toJson()).toList(),
@@ -522,7 +548,7 @@ class MediaLibrary extends ChangeNotifier {
         );
         final target = exportFile(relative);
         await target.parent.create(recursive: true);
-        await File(intermediate).rename(target.path);
+        await _transferOutput(File(intermediate), target);
         await _exportMetadata(job, target);
         _items.removeWhere((item) => item.id == id);
         _items.add(

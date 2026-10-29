@@ -133,7 +133,7 @@ extension MediaExportOperations on MediaLibrary {
       await _decodeOutput(staged.path, checked.duration, base: .4, weight: .55);
       await target.parent.create(recursive: true);
       _check();
-      await staged.rename(target.path);
+      await _transferOutput(staged, target);
       final item = LocalMediaItem(
         id: 'special-${source.id}',
         drama: drama,
