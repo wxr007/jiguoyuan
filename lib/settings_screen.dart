@@ -197,74 +197,183 @@ class _SettingsScreenState extends State<SettingsScreen> {
   );
 
   Future<void> _pickExportDirectory() async {
-    if (Platform.isAndroid && !await AppDevice.exportStorageAccess()) {
-      if (!mounted) return;
-      await showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('需要所有文件访问权限'),
-          content: const Text(
-            '导出到公共目录（如下载、影片目录）需要系统授予“所有文件访问”权限。'
-            '授权后返回本页再选择目录；仅使用应用自己的目录时不需要授权。',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('取消'),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.pop(context);
-                unawaited(AppDevice.openExportStorageSettings());
-              },
-              child: const Text('去授权'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-    var selected = await FilePicker.getDirectoryPath(dialogTitle: '选择导出目录');
-    if (!mounted) return;
-    if (selected != null && selected.startsWith('content:')) selected = null;
-    if (selected == null && Platform.isAndroid) {
-      selected = await _inputExportDirectory();
-      if (!mounted) return;
-    }
-    if (selected == null || selected.trim().isEmpty) {
-      if (mounted) setState(() => _message = '未获取到所选目录的路径，请重试。');
-      return;
-    }
-    final directory = _trimTrailingSlashes(selected!.trim());
-    final looksAbsolute =
-        directory.startsWith('/') ||
-        directory.startsWith(RegExp(r'[A-Za-z]:[\\/]'));
-    if (!looksAbsolute) {
-      if (mounted) {
-        setState(() => _message = '路径无效，请选择或输入完整目录路径：$directory');
+    final steps = <String>[];
+    var candidate = '';
+    try {
+      final granted = await AppDevice.exportStorageAccess();
+      steps.add('所有文件访问权限：${granted ? '已授权' : '未授权'}');
+      if (Platform.isAndroid && !granted) {
+        if (!mounted) return;
+        final action = await _exportFailureDialog(
+          title: '缺少“所有文件访问权限”',
+          detail:
+              '导出到公共目录（如下载、影片目录）需要系统授予“管理所有文件”权限，'
+              '否则写入会被系统拒绝。授权后返回本页重试，也可以手动输入完整路径再试。',
+          steps: steps,
+          manual: true,
+          settings: true,
+        );
+        if (!mounted) return;
+        if (action == 'settings') {
+          unawaited(AppDevice.openExportStorageSettings());
+          return;
+        }
+        if (action != 'manual') return;
+        candidate = await _inputExportDirectory() ?? '';
+        if (!mounted) return;
+        steps.add('手动输入：${candidate.isEmpty ? '（已取消）' : candidate}');
+      } else {
+        final picked = await FilePicker.getDirectoryPath(dialogTitle: '选择导出目录');
+        if (!mounted) return;
+        steps.add('系统选择器返回：${picked ?? '（空值）'}');
+        candidate = picked ?? '';
+        if (candidate.isEmpty || candidate.startsWith('content:')) {
+          candidate = await _inputExportDirectory() ?? '';
+          if (!mounted) return;
+          steps.add('手动输入：${candidate.isEmpty ? '（已取消）' : candidate}');
+        }
       }
-      return;
+      while (mounted) {
+        final directory = _trimTrailingSlashes(candidate.trim());
+        final action = await _applyExportDirectory(directory, steps);
+        if (!mounted) return;
+        if (action == null) {
+          setState(() => _message = null);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('导出目录已保存：$directory')),
+          );
+          return;
+        }
+        if (action == 'settings') {
+          unawaited(AppDevice.openExportStorageSettings());
+          return;
+        }
+        if (action != 'manual') return;
+        candidate = await _inputExportDirectory() ?? '';
+        if (!mounted) return;
+        steps.add('手动输入：${candidate.isEmpty ? '（已取消）' : candidate}');
+      }
+    } catch (error) {
+      if (!mounted) return;
+      await _exportFailureDialog(
+        title: '设置导出目录时出错',
+        detail: '$error',
+        steps: steps,
+        manual: true,
+        settings: Platform.isAndroid,
+      );
+    }
+  }
+
+  bool _looksAbsolute(String value) =>
+      value.startsWith('/') || value.startsWith(RegExp(r'[A-Za-z]:[\\/]'));
+
+  Future<String?> _applyExportDirectory(
+    String directory,
+    List<String> steps,
+  ) async {
+    if (directory.isEmpty) {
+      return await _exportFailureDialog(
+        title: '没有拿到目录路径',
+        detail:
+            '系统目录选择器没有返回可用的文件夹路径（常见于从“最近”或快捷方式进入）。'
+            '请重新选择，或手动输入完整路径，例如：\n/storage/emulated/0/Download/短剧导出',
+        steps: steps,
+        manual: true,
+        settings: Platform.isAndroid,
+      );
+    }
+    if (!_looksAbsolute(directory)) {
+      return await _exportFailureDialog(
+        title: '路径格式不正确',
+        detail: '需要完整路径，例如：\n/storage/emulated/0/Download/短剧导出\n当前得到：$directory',
+        steps: steps,
+        manual: true,
+        settings: Platform.isAndroid,
+      );
     }
     try {
       await Directory(directory).create(recursive: true);
       final probe = File('$directory/.duanju-write-test');
       await probe.writeAsString('ok', flush: true);
       await probe.delete();
+      steps.add('目录写入测试：通过');
     } catch (error) {
-      if (mounted) setState(() => _message = '该目录不可写：$error');
-      return;
+      steps.add('目录写入测试：失败（$error）');
+      if (!mounted) return '';
+      return await _exportFailureDialog(
+        title: '该目录不可写',
+        detail:
+            '目录：$directory\n原因：$error\n\n'
+            '若选择的是公共目录，请确认已在系统中授予“所有文件访问权限”；也可以换一个目录再试。',
+        steps: steps,
+        manual: true,
+        settings: Platform.isAndroid,
+      );
     }
     try {
       await widget.store.setExportDirectory(directory);
-      if (mounted) {
-        setState(() => _message = null);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('导出目录已保存：$directory')),
-        );
-      }
+      steps.add('保存设置：成功');
     } catch (error) {
-      if (mounted) setState(() => _message = error.toString());
+      steps.add('保存设置：失败（$error）');
+      if (!mounted) return '';
+      await _exportFailureDialog(
+        title: '保存设置失败',
+        detail: '原因：$error',
+        steps: steps,
+        manual: false,
+        settings: false,
+      );
+      return '';
     }
+    return null;
+  }
+
+  Future<String> _exportFailureDialog({
+    required String title,
+    required String detail,
+    required List<String> steps,
+    bool manual = false,
+    bool settings = false,
+  }) async {
+    final action = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SelectableText(detail),
+              if (steps.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                const Text('诊断信息'),
+                const SizedBox(height: 4),
+                SelectableText(steps.join('\n')),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'close'),
+            child: const Text('关闭'),
+          ),
+          if (settings)
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'settings'),
+              child: const Text('去系统授权'),
+            ),
+          if (manual)
+            FilledButton(
+              onPressed: () => Navigator.pop(context, 'manual'),
+              child: const Text('手动输入路径'),
+            ),
+        ],
+      ),
+    );
+    return action ?? 'close';
   }
 
   String _trimTrailingSlashes(String value) {
