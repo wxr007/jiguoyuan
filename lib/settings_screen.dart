@@ -224,8 +224,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
       return;
     }
-    final selected = await FilePicker.getDirectoryPath(dialogTitle: '选择导出目录');
-    if (selected == null || !mounted) return;
+    var selected = await FilePicker.getDirectoryPath(dialogTitle: '选择导出目录');
+    if (!mounted) return;
+    if (selected != null && selected.startsWith('content:')) selected = null;
+    if (selected == null && Platform.isAndroid) {
+      selected = await _inputExportDirectory();
+      if (!mounted) return;
+    }
+    if (selected == null || selected.trim().isEmpty) {
+      if (mounted) setState(() => _message = '未获取到所选目录的路径，请重试。');
+      return;
+    }
+    selected = selected.trim();
+    while (selected.length > 1 && selected.endsWith('/')) {
+      selected = selected.substring(0, selected.length - 1);
+    }
+    final looksAbsolute =
+        selected.startsWith('/') || selected.startsWith(RegExp(r'[A-Za-z]:[\\/]'));
+    if (!looksAbsolute) {
+      if (mounted) setState(() => _message = '路径无效，请选择或输入完整目录路径：$selected');
+      return;
+    }
     try {
       await Directory(selected).create(recursive: true);
       final probe = File('$selected/.duanju-write-test');
@@ -237,10 +256,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     try {
       await widget.store.setExportDirectory(selected);
-      if (mounted) setState(() => _message = null);
+      if (mounted) {
+        setState(() => _message = null);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('导出目录已保存：$selected')),
+        );
+      }
     } catch (error) {
       if (mounted) setState(() => _message = error.toString());
     }
+  }
+
+  Future<String?> _inputExportDirectory() {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('手动输入导出目录'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '目录选择器没有返回所选目录的路径（从“最近”或快捷方式进入时会出现）。'
+              '请输入完整路径，例如：/storage/emulated/0/Download/短剧导出',
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: '/storage/emulated/0/Download/短剧导出',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _resetExportDirectory() async {
