@@ -172,7 +172,6 @@ Compared against the feature list of the legacy drama libraries (`../短剧库`,
 | P3-2 | LAN favorites and progress sync | Implemented, pending verification: auto discovery, direct HTTPS, incremental merge and manual two-way sync; real two-device sync per platform |
 | P3-3 | LAN push playback | Retired: the player entry was removed; LAN interconnect keeps favorites and progress sync only |
 | P3-4 | Video enhancement and super-resolution | Implemented, pending verification: Windows desktop only; quality and sustained performance pending centralized verification |
-| P3-5 | Android picture-in-picture | Implemented, pending verification: system PiP integration; TV, Windows and iOS have no system-level PiP |
 
 The legacy project's Docker / HTTP service, browser registration and remote accounts, cross-device server-side records, online STRM signing gateway and scheduled remote Emby sync all depend on an always-on server, so they are out of scope for this app. The corresponding capabilities are on-device users and backups, a native player, local media and Emby file export, plus serverless LAN connections.
 

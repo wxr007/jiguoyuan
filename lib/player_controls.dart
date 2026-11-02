@@ -33,7 +33,6 @@ class PlayerControls extends StatefulWidget {
     this.onSeek,
     this.onDanmaku,
     this.onRetryDanmaku,
-    this.onPictureInPicture,
     this.enhancement,
   });
 
@@ -60,7 +59,6 @@ class PlayerControls extends StatefulWidget {
   final Future<void> Function(Duration)? onSeek;
   final Future<void> Function()? onDanmaku;
   final Future<void> Function()? onRetryDanmaku;
-  final Future<void> Function()? onPictureInPicture;
   final VideoEnhancementController? enhancement;
 
   @override
@@ -698,15 +696,6 @@ class _PlayerControlsState extends State<PlayerControls> {
               ? () => _panel(() => _openVolume(volume))
               : null,
         ),
-      if (widget.onPictureInPicture != null)
-        _toolIcon(
-          key: const ValueKey('player-picture-in-picture'),
-          tooltip: '画中画',
-          icon: Icons.picture_in_picture_alt_rounded,
-          onPressed: widget.enabled
-              ? () => _panel(widget.onPictureInPicture!)
-              : null,
-        ),
       _toolIcon(
         key: const ValueKey('player-fullscreen'),
         tooltip: fullscreen ? '退出全屏' : '旋转与全屏',
@@ -744,15 +733,6 @@ class _PlayerControlsState extends State<PlayerControls> {
           tooltip: '选集',
           icon: Icons.grid_view_rounded,
           onPressed: widget.enabled ? () => _panel(widget.onEpisodes) : null,
-        ),
-      if (widget.onPictureInPicture != null)
-        _toolIcon(
-          key: const ValueKey('player-picture-in-picture'),
-          tooltip: '画中画',
-          icon: Icons.picture_in_picture_alt_rounded,
-          onPressed: widget.enabled
-              ? () => _panel(widget.onPictureInPicture!)
-              : null,
         ),
     ];
     return Padding(
