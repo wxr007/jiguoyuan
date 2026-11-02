@@ -26,7 +26,7 @@ This is a compile-time option and cannot be switched inside the app. The window 
 | Download and offline | Per-episode downloads at a chosen quality, batch management, resume, Android background service, offline playback, directory migration |
 | Merge and export | Episode merging, local finished-media library, Emby export with stable numbering and NFO; the export directory is configurable in settings and receives both merged output and Emby exports, with public folders available on Android after granting all-files access |
 | Users and permissions | Local multi-user support, admin password, per-user source and download permissions, configuration backup and restore |
-| LAN interconnect | mDNS discovery, direct HTTPS connection, incremental sync of favorites and progress, push-to-resume without going through a server |
+| LAN interconnect | mDNS discovery, direct HTTPS connection, incremental sync of favorites and progress without going through a server |
 | Video enhancement | Physical output size matching, RAVU, anime CNN, FSRCNNX and more, Windows desktop only (not initialized on mobile or TV) |
 | Android TV | Automatic TV detection, forced landscape, remote focus model and option dialogs |
 | Theme | Light / dark / follow system |
@@ -170,7 +170,7 @@ Compared against the feature list of the legacy drama libraries (`../短剧库`,
 | P2-11 | Continue after metadata failures | Implemented, pending verification: retry timing and scan position persisted, 404 cooldown and backoff |
 | P3-1 | Network and resource settings | Implemented, pending verification: direct / auto / manual proxy, catalog concurrency and interval, per-platform proxying and switching in flight |
 | P3-2 | LAN favorites and progress sync | Implemented, pending verification: auto discovery, direct HTTPS, incremental merge and manual two-way sync; real two-device sync per platform |
-| P3-3 | LAN push playback | Implemented, pending verification: reuses the device connection to push a resume request without transferring media URLs, keys or files |
+| P3-3 | LAN push playback | Retired: the player entry was removed; LAN interconnect keeps favorites and progress sync only |
 | P3-4 | Video enhancement and super-resolution | Implemented, pending verification: Windows desktop only; quality and sustained performance pending centralized verification |
 | P3-5 | Android picture-in-picture | Implemented, pending verification: system PiP integration; TV, Windows and iOS have no system-level PiP |
 

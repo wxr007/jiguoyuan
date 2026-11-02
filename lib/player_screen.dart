@@ -30,7 +30,6 @@ import 'television_controls.dart';
 import 'widgets.dart';
 import 'sources_screen.dart';
 import 'lan_controller.dart';
-import 'lan_screen.dart';
 import 'video_enhancement.dart';
 import 'video_output_size.dart';
 
@@ -599,53 +598,6 @@ class _PlayerScreenState extends State<PlayerScreen>
       await _player.pause();
       await _saveProgress(flush: true);
     });
-  }
-
-  Future<void> _pushToDevice() async {
-    final link = LanController.current;
-    if (link == null ||
-        _panelOpen ||
-        _closed ||
-        _loading ||
-        _error != null ||
-        widget.mediaId != null)
-      return;
-    final generation = _generation;
-    final index = _index;
-    bool current() =>
-        mounted &&
-        !_closed &&
-        generation == _generation &&
-        index == _index &&
-        widget.store.profileEpoch == _profileEpoch;
-    _interactions.cancel();
-    setState(() => _panelOpen = true);
-    try {
-      await showLanPush(
-        context,
-        link,
-        snapshot: () => LanPlaybackIntent(
-          drama: widget.detail.drama,
-          episodeID: widget.detail.episodes[index].id,
-          episode: widget.detail.episodes[index].number,
-          position: _currentPosition,
-        ),
-        stillCurrent: current,
-        onAccepted: () async {
-          if (!current()) throw StateError('本机播放内容已变更');
-          await _stopForLan();
-          if (!current()) throw StateError('本机播放内容已变更');
-        },
-      );
-    } catch (error) {
-      if (mounted && !_closed) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error.toString())));
-      }
-    } finally {
-      if (mounted && !_closed) setState(() => _panelOpen = false);
-    }
   }
 
   void _syncPreload() {
@@ -1657,7 +1609,6 @@ class _PlayerScreenState extends State<PlayerScreen>
             onRetryDanmaku: _danmaku.canRetry
                 ? _retryDanmakuFromControls
                 : null,
-            onPush: widget.mediaId == null ? _pushToDevice : null,
             onPictureInPicture: _canUsePictureInPicture
                 ? _enterPictureInPicture
                 : null,

@@ -46,3 +46,4 @@ ios/DuanjuCore/*.xcframework/
 !android/key.properties
 !android/duanju-release.jks
 !android/duanju-release.jks.base64.txt
+.workbuddy/
