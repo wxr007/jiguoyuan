@@ -182,9 +182,9 @@ class PlayerInteractions extends ChangeNotifier {
 
   void _adjustHoldSpeed(double dx) {
     final speed = dx <= -_holdDragThreshold
-        ? 3.0
-        : dx >= _holdDragThreshold
         ? 1.5
+        : dx >= _holdDragThreshold
+        ? 3.0
         : 2.0;
     if (speed == _holdSpeed) return;
     _holdSpeed = speed;
