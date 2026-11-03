@@ -175,9 +175,9 @@ void main() {
       final fullscreen = tester.getRect(
         find.byKey(const ValueKey('player-fullscreen')),
       );
+      expect(fullscreen.left, lessThan(12));
+      expect(fullscreen.right, lessThan(speed.left));
       expect(quality.left - speed.right, lessThan(8));
-      expect(fullscreen.left - quality.right, lessThan(8));
-      expect(fullscreen.right, greaterThan(330));
       await unmount(tester, player);
     } finally {
       messenger.setMockMethodCallHandler(AppDevice.channel, null);

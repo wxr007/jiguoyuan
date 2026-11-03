@@ -278,7 +278,7 @@ void main() {
     await tester.fling(find.byType(Video), const Offset(0, -160), 900);
     await decoded(2);
 
-    await tester.tap(find.byTooltip('旋转与全屏').first);
+    await tester.tap(find.byTooltip('全屏').first);
     await until(
       () =>
           MediaQuery.orientationOf(tester.element(find.byType(Video))) ==

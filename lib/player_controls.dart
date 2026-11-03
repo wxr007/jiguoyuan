@@ -323,12 +323,6 @@ class _PlayerControlsState extends State<PlayerControls> {
               )
             else
               const Spacer(),
-            if (compact)
-              _overlayIconButton(
-                tooltip: '旋转与全屏',
-                onPressed: widget.onFullscreen,
-                icon: Icons.screen_rotation_alt_rounded,
-              ),
           ],
         ),
       ),
@@ -609,6 +603,13 @@ class _PlayerControlsState extends State<PlayerControls> {
   Widget _toolGroup(List<Widget> children) =>
       Row(mainAxisSize: MainAxisSize.min, children: children);
 
+  Widget _fullscreenTool(bool fullscreen) => _toolIcon(
+    key: const ValueKey('player-fullscreen'),
+    tooltip: fullscreen ? '退出全屏' : '全屏',
+    icon: fullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+    onPressed: widget.onFullscreen,
+  );
+
   Widget _clusteredToolRow(List<Widget> tools) {
     if (tools.isEmpty) return const SizedBox.shrink();
     if (tools.length <= 5) {
@@ -696,18 +697,15 @@ class _PlayerControlsState extends State<PlayerControls> {
               ? () => _panel(() => _openVolume(volume))
               : null,
         ),
-      _toolIcon(
-        key: const ValueKey('player-fullscreen'),
-        tooltip: fullscreen ? '退出全屏' : '旋转与全屏',
-        icon: fullscreen
-            ? Icons.fullscreen_exit_rounded
-            : Icons.fullscreen_rounded,
-        onPressed: widget.onFullscreen,
-      ),
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-      child: _clusteredToolRow(tools),
+      child: Row(
+        children: [
+          _fullscreenTool(fullscreen),
+          Expanded(child: _clusteredToolRow(tools)),
+        ],
+      ),
     );
   }
 
@@ -737,7 +735,12 @@ class _PlayerControlsState extends State<PlayerControls> {
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-      child: _clusteredToolRow(tools),
+      child: Row(
+        children: [
+          _fullscreenTool(fullscreen),
+          Expanded(child: _clusteredToolRow(tools)),
+        ],
+      ),
     );
   }
 

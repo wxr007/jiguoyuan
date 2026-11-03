@@ -111,7 +111,7 @@ void main() {
       Brightness.dark,
     );
     await capture('appearance-dark-player');
-    await tester.tap(find.byTooltip('旋转与全屏').first);
+    await tester.tap(find.byTooltip('全屏').first);
     await until(
       () =>
           MediaQuery.orientationOf(tester.element(find.byType(Video))) ==
