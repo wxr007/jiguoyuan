@@ -377,25 +377,28 @@ class DramaTile extends StatelessWidget {
               if (badge != null && badge!.isNotEmpty)
                 Positioned(
                   left: 6,
+                  top: 6,
                   right: 6,
-                  bottom: 6,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: .72),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 4,
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: .72),
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Text(
-                        badge!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
+                        child: Text(
+                          badge!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ),
