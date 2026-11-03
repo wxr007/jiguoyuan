@@ -431,11 +431,22 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
     ),
   ];
 
+  Widget _collectionPoster(DownloadCollection collection, {double height = 56}) =>
+      SizedBox(
+        width: height * 2 / 3,
+        height: height,
+        child: DramaCover(
+          drama: collection.drama,
+          repository: widget.repository,
+          radius: 6,
+          placeholderIconSize: height <= 48 ? 16 : 18,
+        ),
+      );
+
   Widget _collection(DownloadCollection collection) {
     final count = collection.jobs
         .where((job) => _selected.contains(job.id))
         .length;
-    final expanded = _expanded.contains(collection.drama.id);
     return Card(
       child: ListTile(
         leading: _selecting
@@ -448,7 +459,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                     : null,
                 onChanged: _busy ? null : (_) => _select(collection.jobs),
               )
-            : Icon(expanded ? Icons.folder_open_rounded : Icons.folder_rounded),
+            : _collectionPoster(collection),
         title: Text(
           collection.drama.title,
           maxLines: 2,
@@ -949,10 +960,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
           '${collection.active > 0 ? ' · ${collection.active} 项进行中' : ''}'
           '${collection.failed > 0 ? ' · ${collection.failed} 项失败' : ''}'
           '${expanded ? ' · 已展开' : ' · 按确认展开分集'}',
-      leading: Icon(
-        expanded ? Icons.folder_open_rounded : Icons.folder_rounded,
-        size: 28,
-      ),
+      leading: _collectionPoster(collection, height: 48),
       trailing: Icon(
         _selecting && count == collection.jobs.length
             ? Icons.check_circle_rounded

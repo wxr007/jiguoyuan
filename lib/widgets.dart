@@ -93,10 +93,12 @@ class DramaCover extends StatelessWidget {
     required this.drama,
     required this.repository,
     this.radius = 14,
+    this.placeholderIconSize = 40,
   });
   final Drama drama;
   final AppRepository repository;
   final double radius;
+  final double placeholderIconSize;
   static const imagesDisabled = bool.fromEnvironment('DISABLE_REMOTE_IMAGES');
 
   @override
@@ -113,7 +115,7 @@ class DramaCover extends StatelessWidget {
       child: Center(
         child: Icon(
           Icons.movie_creation_outlined,
-          size: 40,
+          size: placeholderIconSize,
           color: colors.onSurfaceVariant,
         ),
       ),
