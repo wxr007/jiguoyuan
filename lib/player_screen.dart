@@ -1415,13 +1415,11 @@ class _PlayerScreenState extends State<PlayerScreen>
             onBack: _back,
             onFocusSurface: _playerFocus.requestFocus,
             onSeek: _seekTo,
-            speed: _speed,
             qualityLabel: _qualityLabel,
             showDanmaku: widget.detail.drama.source == 'hongguo',
             danmakuEnabled: _danmakuEnabled,
             danmakuStatus: _danmaku.status,
             onEpisodes: () => _openPanel(PlayerMenuSection.episodes),
-            onSpeed: () => _openPanel(PlayerMenuSection.speed),
             onQuality: () => _openPanel(PlayerMenuSection.quality),
             onDanmaku: widget.detail.drama.source == 'hongguo'
                 ? _toggleDanmaku

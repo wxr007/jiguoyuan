@@ -20,9 +20,7 @@ class PlayerControls extends StatefulWidget {
     required this.title,
     required this.onTogglePlayback,
     required this.onEpisodes,
-    required this.onSpeed,
     required this.onQuality,
-    required this.speed,
     required this.qualityLabel,
     required this.onFocusSurface,
     this.showDanmaku = false,
@@ -46,9 +44,7 @@ class PlayerControls extends StatefulWidget {
   final String title;
   final VoidCallback onTogglePlayback;
   final Future<void> Function() onEpisodes;
-  final Future<void> Function() onSpeed;
   final Future<void> Function() onQuality;
-  final double speed;
   final String qualityLabel;
   final VoidCallback onFocusSurface;
   final bool showDanmaku;
@@ -372,7 +368,7 @@ class _PlayerControlsState extends State<PlayerControls> {
     final fullscreen = widget.fullscreen;
     final mobile = widget.swipeEnabled;
     final showEpisodes = fullscreen;
-    final showSpeedQuality =
+    final showQuality =
         mobile || fullscreen && width >= 720 || !fullscreen && width >= 560;
     final showCompare = fullscreen && width >= 820;
     final showVolume = !widget.swipeEnabled && width >= 360;
@@ -387,7 +383,7 @@ class _PlayerControlsState extends State<PlayerControls> {
             _desktopControlRow(
               fullscreen: fullscreen,
               showEpisodes: showEpisodes,
-              showSpeedQuality: showSpeedQuality,
+              showQuality: showQuality,
               showCompare: showCompare,
               showVolume: showVolume,
               volume: volume,
@@ -656,20 +652,13 @@ class _PlayerControlsState extends State<PlayerControls> {
   Widget _desktopControlRow({
     required bool fullscreen,
     required bool showEpisodes,
-    required bool showSpeedQuality,
+    required bool showQuality,
     required bool showCompare,
     required bool showVolume,
     required double volume,
   }) {
     final tools = [
-      if (showSpeedQuality) ...[
-        _toolText(
-          key: const ValueKey('player-speed'),
-          tooltip: '倍速',
-          label: '${widget.speed}x',
-          onPressed: widget.enabled ? () => _panel(widget.onSpeed) : null,
-          width: 50,
-        ),
+      if (showQuality)
         _toolText(
           key: const ValueKey('player-quality'),
           tooltip: '清晰度',
@@ -677,7 +666,6 @@ class _PlayerControlsState extends State<PlayerControls> {
           onPressed: widget.enabled ? () => _panel(widget.onQuality) : null,
           width: 52,
         ),
-      ],
       if (showEpisodes)
         _toolIcon(
           key: const ValueKey('player-episodes'),
@@ -711,13 +699,6 @@ class _PlayerControlsState extends State<PlayerControls> {
 
   Widget _mobileControlRow({required bool fullscreen}) {
     final tools = [
-      _toolText(
-        key: const ValueKey('player-speed'),
-        tooltip: '倍速',
-        label: '${widget.speed}x',
-        onPressed: widget.enabled ? () => _panel(widget.onSpeed) : null,
-        width: 50,
-      ),
       _toolText(
         key: const ValueKey('player-quality'),
         tooltip: '清晰度',

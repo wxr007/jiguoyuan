@@ -71,17 +71,11 @@ void main() {
   }
 
   testWidgets(
-    'duplicate errors switch once while keeping progress, rate and pause state',
+    'duplicate errors switch once while keeping progress and pause state',
     (tester) async {
       final repository = RouteRepository();
       final player = ScriptedPlayer();
       await mount(tester, repository, player);
-      await tester.tap(find.byKey(const ValueKey('player-speed')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('1.5x').last);
-      await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('关闭菜单'));
-      await tester.pumpAndSettle();
       await player.seek(const Duration(seconds: 28));
       await tester.pump();
       await doubleTapSurface(tester);
@@ -93,7 +87,7 @@ void main() {
       expect(repository.fallbackCalls, 1);
       expect(repository.primaryCalls, 1);
       expect(player.opened.last.start, const Duration(seconds: 28));
-      expect(player.state.rate, 1.5);
+      expect(player.state.rate, 1);
       expect(player.played.last, isFalse);
       expect(repository.active.length, 1);
       expect(find.text('暂时无法播放'), findsNothing);
@@ -168,7 +162,6 @@ void main() {
       final repository = RouteRepository();
       final player = ScriptedPlayer();
       await mount(tester, repository, player, size: const Size(390, 844));
-      final speed = tester.getRect(find.byKey(const ValueKey('player-speed')));
       final quality = tester.getRect(
         find.byKey(const ValueKey('player-quality')),
       );
@@ -176,8 +169,8 @@ void main() {
         find.byKey(const ValueKey('player-fullscreen')),
       );
       expect(fullscreen.left, lessThan(12));
-      expect(fullscreen.right, lessThan(speed.left));
-      expect(quality.left - speed.right, lessThan(8));
+      expect(fullscreen.right, lessThan(quality.left));
+      expect(quality.right, greaterThan(330));
       await unmount(tester, player);
     } finally {
       messenger.setMockMethodCallHandler(AppDevice.channel, null);
