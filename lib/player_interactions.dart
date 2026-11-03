@@ -50,12 +50,15 @@ class PlayerInteractions extends ChangeNotifier {
   double _unmutedVolume = 100;
   String _feedback = '';
   bool _speedHint = false;
+  double _holdSpeed = 2;
+  static const double _holdDragThreshold = 40;
   DateTime _ignoreTapUntil = DateTime(2000);
 
   String get feedback => _feedback;
   bool get boosting => _boosting;
   bool get pointerBoosting => _boosting && !_keyboardHold;
   bool get speedHint => _speedHint;
+  double get holdSpeed => _holdSpeed;
   bool get suppressTap => DateTime.now().isBefore(_ignoreTapUntil);
   Future<void> get pendingRates => _rates;
 
@@ -70,7 +73,7 @@ class PlayerInteractions extends ChangeNotifier {
     if (!persistent && message.isNotEmpty) {
       _hintTimer = Timer(const Duration(milliseconds: 1200), () {
         hint(
-          _boosting ? '3 倍速 · 松开恢复' : '',
+          _boosting ? '${_speedLabel(_holdSpeed)} 倍速 · 松开恢复' : '',
           persistent: true,
           speed: _boosting,
         );
@@ -79,6 +82,10 @@ class PlayerInteractions extends ChangeNotifier {
   }
 
   Future<void> applySpeed() => _setRate(baseSpeed());
+
+  String _speedLabel(double value) => value == value.roundToDouble()
+      ? value.toStringAsFixed(0)
+      : value.toString();
 
   Future<void> _setRate(double value) {
     _rates = _rates
@@ -105,8 +112,9 @@ class PlayerInteractions extends ChangeNotifier {
       }
       _boosting = true;
       _held = true;
-      unawaited(_setRate(3));
-      hint('3 倍速 · 松开恢复', persistent: true, speed: true);
+      _holdSpeed = 2;
+      unawaited(_setRate(2));
+      hint('2 倍速 · 左右滑动切换', persistent: true, speed: true);
     });
   }
 
@@ -119,7 +127,7 @@ class PlayerInteractions extends ChangeNotifier {
     _boosting = false;
     if (boosted) {
       unawaited(_setRate(baseSpeed()));
-      if (!silent) hint('恢复 ${baseSpeed()} 倍速', speed: true);
+      if (!silent) hint('恢复 ${_speedLabel(baseSpeed())} 倍速', speed: true);
     } else if (tap && wasKeyboard) {
       seek(5);
     }
@@ -161,10 +169,27 @@ class PlayerInteractions extends ChangeNotifier {
   void pointerMove(PointerMoveEvent event) {
     if (_pointer != event.pointer || _origin == null) return;
     _lastPosition = event.localPosition;
-    if ((event.localPosition - _origin!).distance > 12) {
+    final delta = event.localPosition - _origin!;
+    if (_held && !_keyboardHold) {
+      _adjustHoldSpeed(delta.dx);
+      return;
+    }
+    if (delta.distance > 12) {
       _moved = true;
       _endHold();
     }
+  }
+
+  void _adjustHoldSpeed(double dx) {
+    final speed = dx <= -_holdDragThreshold
+        ? 3.0
+        : dx >= _holdDragThreshold
+        ? 1.5
+        : 2.0;
+    if (speed == _holdSpeed) return;
+    _holdSpeed = speed;
+    unawaited(_setRate(speed));
+    if (!_disposed) notifyListeners();
   }
 
   void pointerUp(PointerUpEvent event) {

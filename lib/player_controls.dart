@@ -864,7 +864,9 @@ class _PlayerControlsState extends State<PlayerControls> {
   Widget _gestureFeedback() => AnimatedBuilder(
     animation: widget.interactions,
     builder: (context, _) {
-      final feedback = widget.interactions.feedback;
+      final interactions = widget.interactions;
+      if (interactions.boosting) return _holdSpeedPill(interactions.holdSpeed);
+      final feedback = interactions.feedback;
       if (feedback.isEmpty) return const SizedBox.shrink();
       return IgnorePointer(
         child: Align(
@@ -890,4 +892,65 @@ class _PlayerControlsState extends State<PlayerControls> {
       );
     },
   );
+
+  Widget _holdSpeedPill(double current) => IgnorePointer(
+    child: Align(
+      alignment: Alignment.topCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: .5),
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _holdSpeedChip(1.5, '1.5倍', current),
+              _holdSpeedChip(2, '2倍', current),
+              _holdSpeedChip(3, '3倍', current),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Widget _holdSpeedChip(double speed, String label, double current) {
+    final selected = speed == current;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 120),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: selected
+            ? Colors.white.withValues(alpha: .9)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (selected) ...[
+            const Icon(
+              Icons.play_arrow_rounded,
+              size: 14,
+              color: Colors.black87,
+            ),
+            const SizedBox(width: 2),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              color: selected
+                  ? Colors.black87
+                  : Colors.white.withValues(alpha: .82),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
