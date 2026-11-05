@@ -124,8 +124,45 @@ class LocalStore extends ChangeNotifier {
   bool get canDownload => !locked && (profile.admin || profile.download);
   bool allowsSource(String source) =>
       !locked && SourceSite.isAvailable(source) && profile.allows(source);
-  List<SourceSite> get sources =>
+  Set<String>? _disabledSourcesCache;
+  Set<String> get disabledSources =>
+      _disabledSourcesCache ??= _readDisabledSources();
+  bool sourceEnabled(String id) => !disabledSources.contains(id);
+  List<SourceSite> get manageableSources =>
       SourceSite.values.where((site) => allowsSource(site.id)).toList();
+  List<SourceSite> get sources => SourceSite.values
+      .where((site) => allowsSource(site.id) && sourceEnabled(site.id))
+      .toList();
+
+  Set<String> _readDisabledSources() {
+    final raw = _string('disabledSources');
+    if (raw == null || raw.isEmpty) return <String>{};
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return <String>{};
+      return decoded.whereType<String>().where(SourceSite.isKnown).toSet();
+    } catch (_) {
+      return <String>{};
+    }
+  }
+
+  Future<void> setSourceEnabled(String id, bool enabled) async {
+    if (SourceSite.isKnown(id)) {
+      final next = disabledSources.where((item) => item != id).toSet();
+      if (!enabled) next.add(id);
+      if (next.length >= SourceSite.values.length) {
+        throw StateError('至少保留一个站源');
+      }
+      final sorted = next.toList()..sort();
+      _disabledSourcesCache = next;
+      try {
+        await _setting('disabledSources', jsonEncode(sorted), admin: true);
+      } catch (_) {
+        _disabledSourcesCache = null;
+        rethrow;
+      }
+    }
+  }
 
   void _loadLibrary() {
     _lanDocumentCache = null;
@@ -873,6 +910,7 @@ class LocalStore extends ChangeNotifier {
       'autoExport': autoExport,
       'exportPosters': exportPosters,
       'exportDirectory': exportDirectory,
+      'disabledSources': (disabledSources.toList()..sort()),
       'forceLogin': forceLogin,
       'libraries': {
         for (final profile in _profiles)
@@ -988,6 +1026,13 @@ class LocalStore extends ChangeNotifier {
 
   Future<void> _installBackup(Map<String, dynamic> data) async {
     final profiles = _readProfiles(data['profiles']);
+    final disabled =
+        ((data['disabledSources'] as List?) ?? const [])
+            .whereType<String>()
+            .where(SourceSite.isKnown)
+            .toSet()
+            .toList()
+          ..sort();
     final values = <String, Object>{
       'profiles': jsonEncode(
         profiles.map((profile) => profile.toJson()).toList(),
@@ -1003,6 +1048,7 @@ class LocalStore extends ChangeNotifier {
       'exportDirectory': data['exportDirectory'] is String
           ? data['exportDirectory'] as String
           : '',
+      'disabledSources': jsonEncode(disabled),
       'forceLogin': data['forceLogin'] is bool
           ? data['forceLogin'] as bool
           : profiles.firstWhere((profile) => profile.admin).protected,
@@ -1046,6 +1092,7 @@ class LocalStore extends ChangeNotifier {
     _current = profiles.firstWhere((profile) => profile.admin).id;
     _configurationError = null;
     _locked = forceLogin && profile.protected;
+    _disabledSourcesCache = null;
     _loadLibrary();
     _epoch++;
     _notify();

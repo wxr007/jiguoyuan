@@ -35,7 +35,7 @@ Source availability, quality and regional restrictions depend on the source site
 
 ## Sources
 
-Source names are romanized Chinese platform names; the app interface shows the original Chinese names.
+Source names are romanized Chinese platform names; the app interface shows the original Chinese names. Each source can be switched on or off on the source management page: a disabled source disappears from the source selectors on the home and search screens, while existing records and downloads are kept, and it can be switched back on there.
 
 | Source | Browse and playback | Search |
 | --- | --- | --- |

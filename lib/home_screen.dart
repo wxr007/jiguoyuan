@@ -82,11 +82,21 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
   }
 
+  SourceSite get _activeSource {
+    final enabled = widget.store.sources;
+    if (enabled.any((site) => site.id == _source.id)) return _source;
+    return enabled.isEmpty ? _source : enabled.first;
+  }
+
   SourceGroup get _group =>
       _sourceGroups
-          .where((group) => group.id == (_allSources ? 'all' : _source.groupId))
+          .where(
+            (group) => group.id == (_allSources ? 'all' : _activeSource.groupId),
+          )
           .firstOrNull ??
-      SourceGroup(_source.groupId, _source.groupName, [_source]);
+      SourceGroup(_activeSource.groupId, _activeSource.groupName, [
+        _activeSource,
+      ]);
   bool get _onlineSearch => _group.sources.any((source) => source.onlineSearch);
   bool get _searchSuggestions =>
       _group.sources.any((source) => source.searchSuggestions);

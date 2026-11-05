@@ -164,7 +164,7 @@ class _SourcesScreenState extends State<SourcesScreen> {
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: widget.store,
     builder: (context, _) {
-      final sources = widget.store.sources.toList()
+      final sources = widget.store.manageableSources.toList()
         ..sort((a, b) {
           final aFirst = a.id == widget.initialSource ? 0 : 1;
           final bFirst = b.id == widget.initialSource ? 0 : 1;
@@ -196,29 +196,7 @@ class _SourcesScreenState extends State<SourcesScreen> {
                       padding: EdgeInsets.all(24),
                       child: Text('当前用户没有可用站源'),
                     ),
-                  for (final group in SourceGroup.fromSources(sources))
-                    if (group.id == 'huangguo')
-                      Card(
-                        clipBehavior: Clip.antiAlias,
-                        child: ExpansionTile(
-                          key: const PageStorageKey('source-group-huangguo'),
-                          initiallyExpanded: group.sources.any(
-                            (source) => source.id == widget.initialSource,
-                          ),
-                          leading: const Icon(Icons.hub_outlined),
-                          title: const Text('黄果'),
-                          subtitle: Text(
-                            '${group.sources.length} 个入口 · ${group.sources.fold<int>(0, (count, source) => count + (_statuses[source.id]?.count ?? 0))} 部',
-                          ),
-                          childrenPadding: const EdgeInsets.all(8),
-                          children: [
-                            for (final source in group.sources)
-                              _sourceCard(source),
-                          ],
-                        ),
-                      )
-                    else
-                      for (final source in group.sources) _sourceCard(source),
+                  for (final source in sources) _sourceCard(source),
                 ],
               ),
             ),
@@ -227,6 +205,17 @@ class _SourcesScreenState extends State<SourcesScreen> {
       );
     },
   );
+
+  Future<void> _toggleSource(SourceSite source, bool enabled) async {
+    try {
+      await widget.store.setSourceEnabled(source.id, enabled);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('$error')));
+    }
+  }
 
   Widget _sourceCard(SourceSite source) {
     final status = _statuses[source.id];
@@ -258,8 +247,26 @@ class _SourcesScreenState extends State<SourcesScreen> {
                   ),
                 ),
                 Text('${status?.count ?? 0} 部'),
+                const SizedBox(width: 8),
+                Switch(
+                  key: ValueKey('source-toggle-${source.id}'),
+                  value: widget.store.sourceEnabled(source.id),
+                  onChanged: widget.store.profile.admin
+                      ? (value) => _toggleSource(source, value)
+                      : null,
+                ),
               ],
             ),
+            if (!widget.store.sourceEnabled(source.id))
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  widget.store.profile.admin
+                      ? '已关闭：不出现在站源选择中，已有记录和下载仍保留'
+                      : '已由管理员关闭：不出现在站源选择中',
+                  style: TextStyle(color: colors.error, fontSize: 13),
+                ),
+              ),
             const SizedBox(height: 8),
             Text('最近更新：${sourceTimestamp(status?.updatedAt)}'),
             if (status != null && status.count > 0)

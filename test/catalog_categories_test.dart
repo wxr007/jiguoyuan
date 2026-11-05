@@ -243,9 +243,14 @@ void main() {
         ..failLegacy = true
         ..paginate = true;
       final browser = CatalogBrowser(repository);
-      final group = SourceGroup.fromSources(
-        SourceSite.knownValues,
-      ).firstWhere((group) => group.id == 'huangguo');
+      const huangguoEntries = {'huangguo-video', 'huangguoai', 'cloudfront'};
+      final group = SourceGroup(
+        'huangguo',
+        '黄果',
+        SourceSite.knownValues
+            .where((site) => huangguoEntries.contains(site.id))
+            .toList(),
+      );
       final first = await browser.load(group);
       expect(first.items.length, 2);
       expect(first.warning, '合成入口失败');
