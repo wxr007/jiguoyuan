@@ -33,6 +33,7 @@ class LocalSnapshot {
     'autoExport',
     'exportPosters',
     'exportDirectory',
+    'disabledSources',
     'forceLogin',
   };
   final SharedPreferences preferences;

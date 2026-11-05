@@ -179,4 +179,21 @@ void main() {
       }
     },
   );
+
+  test('a disabled source leaves the selector but stays manageable', () async {
+    SharedPreferences.setMockInitialValues({});
+    final store = LocalStore(await SharedPreferences.getInstance());
+    addTearDown(store.dispose);
+    final candidates = store.sources;
+    if (candidates.length < 2) return;
+    final target = candidates.last;
+    expect(store.sourceEnabled(target.id), isTrue);
+    await store.setSourceEnabled(target.id, false);
+    expect(store.sourceEnabled(target.id), isFalse);
+    expect(store.sources.any((site) => site.id == target.id), isFalse);
+    expect(store.manageableSources.any((site) => site.id == target.id), isTrue);
+    final restarted = LocalStore(await SharedPreferences.getInstance());
+    addTearDown(restarted.dispose);
+    expect(restarted.sourceEnabled(target.id), isFalse);
+  });
 }
