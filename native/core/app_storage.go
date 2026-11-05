@@ -111,10 +111,7 @@ func nativeCopyTree(ctx context.Context, source, target string) error {
 	})
 }
 
-const (
-	nativeDownloadsFolder = "guoyuan-downloads"
-	legacyDownloadsFolder = "zhenguojian-downloads"
-)
+const nativeDownloadsFolder = "guoyuan-downloads"
 
 func (engine *nativeEngine) moveDownloads(ctx context.Context, parent string) error {
 	if !filepath.IsAbs(parent) {
@@ -163,11 +160,6 @@ func (engine *nativeEngine) moveDownloads(ctx context.Context, parent string) er
 	} else if !os.IsNotExist(statErr) {
 		manager.mu.Unlock()
 		return errors.New("无法读取目标目录，请检查权限后重试")
-	}
-	legacy := filepath.Join(filepath.Clean(parent), legacyDownloadsFolder)
-	if _, legacyErr := os.Stat(filepath.Join(legacy, "index.json")); legacyErr == nil {
-		manager.mu.Unlock()
-		return engine.adoptDownloads(legacy)
 	}
 	manager.moving = true
 	for id, job := range manager.jobs {
