@@ -70,8 +70,8 @@ Source management: each entry shows its cached count, paging position, last upda
 | Platform | Status |
 | --- | --- |
 | Android 8.0+ phones | Source `0.2.63+72`; build scripts and Actions artifacts for ARMv7 / ARM64 / x86_64 are available, installation and runtime verification pending |
-| Windows 10/11 x64 | Unzip and run `hongguojian.exe` / `zhenguojian.exe`, keeping all DLLs and the `data` directory; native LAN discovery requires Windows 10 1903+ |
-| macOS 12+ | Unzip and run `hongguojian.app` / `zhenguojian.app`; the Go core is a universal arm64 + x86_64 dylib; the bundle is unsigned, so the first launch needs `xattr -cr` to clear the quarantine attribute; build and runtime verification pending |
+| Windows 10/11 x64 | Unzip and run `Wuhuaguo.exe` / `Huaguoshan.exe`, keeping all DLLs and the `data` directory; native LAN discovery requires Windows 10 1903+ |
+| macOS 12+ | Unzip and run `Wuhuaguo.app` / `Huaguoshan.app`; the Go core is a universal arm64 + x86_64 dylib; the bundle is unsigned, so the first launch needs `xattr -cr` to clear the quarantine attribute; build and runtime verification pending |
 | Android TV | Shares the Android source with phones; remote control and TV layout pending device verification. The TV banner images still carry the pre-rename wording and must be regenerated on a machine with Pillow via `python scripts/generate_brand_assets.py --font <CJK font path>` |
 | iOS 15.1+ | Project, Go core XCFramework, media dependencies and build scripts are in place; the player disables hardware texture acceleration to avoid libmpv exiting; awaiting Xcode build and device verification, no signed IPA yet |
 
@@ -83,10 +83,10 @@ Pushing to `main` / `master` builds only the full-edition (Huaguoshan) Android A
 
 | Default edition artifact | Full edition artifact | Contents |
 | --- | --- | --- |
-| — | `zhenguojian-android` | APKs for three ABIs plus SHA256 |
-| `hongguojian-windows` | `zhenguojian-windows` | Complete ZIP plus SHA256 |
-| `hongguojian-macos` | `zhenguojian-macos` | Universal macOS `.app` ZIP plus SHA256, unsigned |
-| `hongguojian-ios-unsigned` | `zhenguojian-ios-unsigned` | Unsigned `.app` ZIP plus SHA256, not installable as a signed IPA |
+| — | `Huaguoshan-android` | APKs for three ABIs plus SHA256 |
+| `Wuhuaguo-windows` | `Huaguoshan-windows` | Complete ZIP plus SHA256 |
+| `Wuhuaguo-macos` | `Huaguoshan-macos` | Universal macOS `.app` ZIP plus SHA256, unsigned |
+| `Wuhuaguo-ios-unsigned` | `Huaguoshan-ios-unsigned` | Unsigned `.app` ZIP plus SHA256, not installable as a signed IPA |
 
 The default-edition Android artifact is no longer built; Android ships the full edition only.
 
@@ -138,7 +138,7 @@ flutter run
 
 When debugging the full edition, pass `--all-sources` to `build_native.py` and run `flutter run --dart-define=ALL_SOURCES=true`; the script sets the Dart constant and the Go build flags together, and the app checks on startup that the two agree.
 
-Artifacts land in `dist/android`, `dist/windows`, `dist/macos` and `dist/ios`. The default edition is prefixed with `hongguojian-` and the full edition with `zhenguojian-`; all come with SHA256SUMS.
+Artifacts land in `dist/android`, `dist/windows`, `dist/macos` and `dist/ios`. The default edition is prefixed with `Wuhuaguo-` and the full edition with `Huaguoshan-`; all come with SHA256SUMS.
 
 ## Roadmap
 

@@ -24,14 +24,14 @@ class AppBuildTests(unittest.TestCase):
             variant = BuildVariant.from_dart_defines(encoded)
             self.assertFalse(variant.all_sources)
             self.assertEqual(variant.name, '无花果')
-            self.assertEqual(variant.slug, 'hongguojian')
+            self.assertEqual(variant.slug, 'Wuhuaguo')
 
     def test_full_edition_decodes_among_other_flutter_defines(self):
         variant = BuildVariant.from_dart_defines(dart_defines(
             'OTHER=中文', 'ALL_SOURCES=true', 'VALUE=a=b'))
         self.assertTrue(variant.all_sources)
         self.assertEqual(variant.name, '花果山')
-        self.assertEqual(variant.slug, 'zhenguojian')
+        self.assertEqual(variant.slug, 'Huaguoshan')
 
     def test_ios_branding_can_switch_editions_without_replacing_bundle_identity(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -42,7 +42,7 @@ class AppBuildTests(unittest.TestCase):
                 configure(path, dart_defines('ALL_SOURCES=' + str(enabled).lower()))
                 actual = plistlib.loads(path.read_bytes())
                 self.assertEqual(actual['CFBundleDisplayName'], '花果山' if enabled else '无花果')
-                self.assertEqual(actual['CFBundleName'], 'zhenguojian' if enabled else 'hongguojian')
+                self.assertEqual(actual['CFBundleName'], 'Huaguoshan' if enabled else 'Wuhuaguo')
                 for key, value in original.items():
                     self.assertEqual(actual[key], value)
 

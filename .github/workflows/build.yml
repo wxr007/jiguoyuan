@@ -58,7 +58,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - edition: zhenguojian
+          - edition: Huaguoshan
             arguments: '--all-sources'
     steps:
       - uses: actions/checkout@v4
@@ -109,9 +109,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - edition: hongguojian
+          - edition: Wuhuaguo
             arguments: ''
-          - edition: zhenguojian
+          - edition: Huaguoshan
             arguments: '--all-sources'
     steps:
       - uses: actions/checkout@v4
@@ -156,9 +156,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - edition: hongguojian
+          - edition: Wuhuaguo
             arguments: ''
-          - edition: zhenguojian
+          - edition: Huaguoshan
             arguments: '--all-sources'
     steps:
       - uses: actions/checkout@v4
@@ -190,9 +190,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - edition: hongguojian
+          - edition: Wuhuaguo
             arguments: ''
-          - edition: zhenguojian
+          - edition: Huaguoshan
             arguments: '--all-sources'
     steps:
       - uses: actions/checkout@v4

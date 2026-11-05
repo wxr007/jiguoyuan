@@ -1,4 +1,4 @@
-if (System.getenv('ZHENGUOJIAN_MIRROR_SESSION') == '__MIRROR_SESSION__') {
+if (System.getenv('GUOYUAN_MIRROR_SESSION') == '__MIRROR_SESSION__') {
     def prependMirrors = { repositories, boolean plugins ->
         def mirrors = [
             ['ZgjGoogleMirror', 'https://maven.aliyun.com/repository/google'],

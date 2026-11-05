@@ -96,7 +96,7 @@ def main():
     output = root / 'dist' / 'macos'
     output.mkdir(parents=True, exist_ok=True)
     version = re.search(r'^version:\s*(\S+)', (root / 'pubspec.yaml').read_text(encoding='utf-8'), re.MULTILINE).group(1)
-    with tempfile.TemporaryDirectory(prefix='zhenguojian-macos-') as temporary:
+    with tempfile.TemporaryDirectory(prefix='guoyuan-macos-') as temporary:
         staged = Path(temporary) / f'{variant.slug}.app'
         shutil.copytree(application, staged, symlinks=True)
         destination = output / f'{variant.slug}-{version}-macos.zip'

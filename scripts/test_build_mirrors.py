@@ -30,16 +30,16 @@ class BuildMirrorTests(unittest.TestCase):
                 with china_mirror_environment(environment, True) as result:
                     self.assertEqual(result['PUB_HOSTED_URL'], environment['PUB_HOSTED_URL'])
                     self.assertEqual(result['FLUTTER_STORAGE_BASE_URL'], 'https://storage.flutter-io.cn')
-                    self.assertNotIn('ZHENGUOJIAN_MIRROR_SESSION', environment)
-                    scripts = list(init_directory.glob('zhenguojian-*.gradle'))
+                    self.assertNotIn('GUOYUAN_MIRROR_SESSION', environment)
+                    scripts = list(init_directory.glob('guoyuan-*.gradle'))
                     self.assertEqual(len(scripts), 1)
                     generated = scripts[0].read_text(encoding='utf-8')
-                    self.assertIn(result['ZHENGUOJIAN_MIRROR_SESSION'], generated)
+                    self.assertIn(result['GUOYUAN_MIRROR_SESSION'], generated)
                     self.assertNotIn('__MIRROR_SESSION__', generated)
                     throwaway_environment = result.copy()
                     with china_mirror_environment(environment, True) as other:
-                        self.assertNotEqual(other['ZHENGUOJIAN_MIRROR_SESSION'],
-                                            throwaway_environment['ZHENGUOJIAN_MIRROR_SESSION'])
+                        self.assertNotEqual(other['GUOYUAN_MIRROR_SESSION'],
+                                            throwaway_environment['GUOYUAN_MIRROR_SESSION'])
                     self.assertTrue(scripts[0].is_file())
                     raise RuntimeError('build failed')
             self.assertEqual(list(init_directory.iterdir()), [existing])

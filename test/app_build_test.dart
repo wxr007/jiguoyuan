@@ -18,7 +18,7 @@ void main() {
   test('edition sources include DSD only in the all-source build', () async {
     SharedPreferences.setMockInitialValues({'source': 'huangdou'});
     final store = LocalStore(await SharedPreferences.getInstance());
-    expect(appSlug, allSourcesEnabled ? 'zhenguojian' : 'hongguojian');
+    expect(appSlug, allSourcesEnabled ? 'Huaguoshan' : 'Wuhuaguo');
     expect(store.sources.length, allSourcesEnabled ? 8 : 1);
     expect(
       SourceSite.values.any((source) => source.id == 'dsd'),

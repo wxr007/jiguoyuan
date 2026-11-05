@@ -21,7 +21,7 @@ class BackgroundDownloads {
     if (!Platform.isAndroid) return;
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'zhenguojian_downloads',
+        channelId: 'guoyuan_downloads',
         channelName: '$appName下载',
         channelDescription: '后台下载和媒体处理进度',
         onlyAlertOnce: true,

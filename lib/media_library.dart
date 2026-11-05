@@ -100,7 +100,7 @@ String embyShowNfo(Drama drama, {bool localPoster = false}) {
       : '';
   return '<?xml version="1.0" encoding="utf-8"?>\n<tvshow>'
       '<title>${xmlText(drama.title)}</title><plot>${xmlText(drama.description)}</plot>'
-      '<uniqueid type="zhenguojian" default="true">${xmlText(drama.id)}</uniqueid>'
+      '<uniqueid type="guoyuan" default="true">${xmlText(drama.id)}</uniqueid>'
       '${cover.isEmpty ? '' : '<thumb aspect="poster">${xmlText(cover)}</thumb>'}'
       '<season>1</season><episode>${drama.episodes}</episode></tvshow>\n';
 }
@@ -110,7 +110,7 @@ String embyEpisodeNfo(DownloadJob job) =>
     '<episodedetails><title>${xmlText(job.episode.title)}</title>'
     '<showtitle>${xmlText(job.drama.title)}</showtitle><season>1</season><episode>${job.episode.number}</episode>'
     '<plot>${xmlText(job.drama.description)}</plot>'
-    '<uniqueid type="zhenguojian" default="true">${xmlText(job.id)}</uniqueid></episodedetails>\n';
+    '<uniqueid type="guoyuan" default="true">${xmlText(job.id)}</uniqueid></episodedetails>\n';
 
 String _safeName(String name) {
   var result = name

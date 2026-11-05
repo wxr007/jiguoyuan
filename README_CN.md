@@ -68,8 +68,8 @@ Flutter 多端独立短剧应用。站源请求、解析、下载和播放均在
 | 平台 | 状态 |
 | --- | --- |
 | Android 8.0+ 手机 | 源码 `0.2.63+72`；ARMv7 / ARM64 / x86_64 构建脚本与 Actions 产物可用，真实安装与运行待验收 |
-| Windows 10/11 x64 | ZIP 解压后运行 `hongguojian.exe` / `zhenguojian.exe`，保留所有 DLL 和 `data`；局域网原生发现依赖 Windows 10 1903+ |
-| macOS 12+ | ZIP 解压后运行 `hongguojian.app` / `zhenguojian.app`，Go 核心为 arm64 + x86_64 通用 dylib；未签名，首次打开需 `xattr -cr` 移除隔离属性；构建与运行待验收 |
+| Windows 10/11 x64 | ZIP 解压后运行 `Wuhuaguo.exe` / `Huaguoshan.exe`，保留所有 DLL 和 `data`；局域网原生发现依赖 Windows 10 1903+ |
+| macOS 12+ | ZIP 解压后运行 `Wuhuaguo.app` / `Huaguoshan.app`，Go 核心为 arm64 + x86_64 通用 dylib；未签名，首次打开需 `xattr -cr` 移除隔离属性；构建与运行待验收 |
 | Android TV | 与手机共用 Android 源码；遥控与电视布局待实机验收。电视横幅图片仍是改名前的文案，需在装有 Pillow 的环境执行 `python scripts/generate_brand_assets.py --font <中文字体路径>` 重新生成 |
 | iOS 15.1+ | 工程、Go 核心 XCFramework、媒体依赖与构建脚本齐备；播放页禁用硬件纹理加速规避 libmpv 退出；待 Xcode 构建与真机验收，没有已签名 IPA |
 
@@ -81,10 +81,10 @@ Flutter 多端独立短剧应用。站源请求、解析、下载和播放均在
 
 | 红果版 Artifact | 全站源版 Artifact | 内容 |
 | --- | --- | --- |
-| — | `zhenguojian-android` | 三种架构 APK 和 SHA256 |
-| `hongguojian-windows` | `zhenguojian-windows` | 完整 ZIP 和 SHA256 |
-| `hongguojian-macos` | `zhenguojian-macos` | macOS 通用 `.app` ZIP 和 SHA256，未签名 |
-| `hongguojian-ios-unsigned` | `zhenguojian-ios-unsigned` | 未签名 `.app` ZIP 和 SHA256，不能直接当已签名 IPA 安装 |
+| — | `Huaguoshan-android` | 三种架构 APK 和 SHA256 |
+| `Wuhuaguo-windows` | `Huaguoshan-windows` | 完整 ZIP 和 SHA256 |
+| `Wuhuaguo-macos` | `Huaguoshan-macos` | macOS 通用 `.app` ZIP 和 SHA256，未签名 |
+| `Wuhuaguo-ios-unsigned` | `Huaguoshan-ios-unsigned` | 未签名 `.app` ZIP 和 SHA256，不能直接当已签名 IPA 安装 |
 
 默认版 Android 产物已停用，Android 只出全站源版。
 
@@ -136,7 +136,7 @@ flutter run
 
 调试全站源版时给 `build_native.py` 加 `--all-sources`，并用 `flutter run --dart-define=ALL_SOURCES=true`；脚本会同步设置 Dart 常量和 Go 编译参数，应用启动时检查二者是否一致。
 
-产物在 `dist/android`、`dist/windows`、`dist/macos`、`dist/ios`，红果版以 `hongguojian-` 开头，全站源版以 `zhenguojian-` 开头，均附 SHA256SUMS。
+产物在 `dist/android`、`dist/windows`、`dist/macos`、`dist/ios`，红果版以 `Wuhuaguo-` 开头，全站源版以 `Huaguoshan-` 开头，均附 SHA256SUMS。
 
 ## 功能 TODO
 
