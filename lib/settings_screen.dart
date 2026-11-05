@@ -817,7 +817,8 @@ class _StorageScreenState extends State<StorageScreen> {
     }
   }
 
-  static const _downloadFolder = 'zhenguojian-downloads';
+  static const _downloadFolder = 'guoyuan-downloads';
+  static const _legacyDownloadFolder = 'zhenguojian-downloads';
 
   Future<void> _move() async {
     final current = await widget.repository.downloadDirectory();
@@ -931,10 +932,11 @@ class _StorageScreenState extends State<StorageScreen> {
 
   Future<void> _migrate(String parent, {required bool isPublic}) async {
     final target = '$parent/$_downloadFolder';
-    final reusable = await File('$target/index.json').exists();
+    final existing = await _existingDownload(target, parent);
     if (!mounted) return;
+    final reusable = existing != null;
     final message = reusable
-        ? '该位置已有本应用的下载记录：\n$target\n\n确认后直接读取其中的视频与记录，不复制也不删除文件。'
+        ? '该位置已有本应用的下载记录：\n$existing\n\n确认后直接读取其中的视频与记录，不复制也不删除文件。'
         : '将视频、合并成品及导出内容迁移到：\n$target\n\n'
               '下载会先暂停，复制成功后清理旧目录。请保证目标有足够空间，并在完成后继续下载。'
               '${isPublic ? '\n\n该位置属于公共存储，卸载或重装应用不会删除文件，但其他应用和设备可以直接访问这些文件。' : ''}';
@@ -984,7 +986,16 @@ class _StorageScreenState extends State<StorageScreen> {
     final base = parent.endsWith('/')
         ? parent.substring(0, parent.length - 1)
         : parent;
-    return directory == '$base/downloads' || directory == '$base/$_downloadFolder';
+    return directory == '$base/downloads' ||
+        directory == '$base/$_downloadFolder' ||
+        directory == '$base/$_legacyDownloadFolder';
+  }
+
+  Future<String?> _existingDownload(String target, String parent) async {
+    if (await File('$target/index.json').exists()) return target;
+    final legacy = '$parent/$_legacyDownloadFolder';
+    if (await File('$legacy/index.json').exists()) return legacy;
+    return null;
   }
 
   Future<bool> _ensurePublicAccess() async {

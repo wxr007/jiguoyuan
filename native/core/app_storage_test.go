@@ -63,7 +63,7 @@ func TestMigrationFailureLeavesSourceAndExistingTargetIntact(t *testing.T) {
 	engine, _ := storageFixture(t)
 	old := engine.downloads.root
 	parent := t.TempDir()
-	existing := filepath.Join(parent, "zhenguojian-downloads")
+	existing := filepath.Join(parent, nativeDownloadsFolder)
 	os.Mkdir(existing, 0700)
 	os.WriteFile(filepath.Join(existing, "user-file"), []byte("keep"), 0600)
 	if err := engine.moveDownloads(context.Background(), parent); err == nil {
@@ -84,7 +84,7 @@ func TestMigrationFailureLeavesSourceAndExistingTargetIntact(t *testing.T) {
 	if _, err := os.Stat(old); err != nil {
 		t.Fatal("source removed after cancellation")
 	}
-	if _, err := os.Stat(filepath.Join(empty, "zhenguojian-downloads")); !os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(empty, nativeDownloadsFolder)); !os.IsNotExist(err) {
 		t.Fatal("partial target not cleaned")
 	}
 }

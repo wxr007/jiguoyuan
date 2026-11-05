@@ -111,6 +111,11 @@ func nativeCopyTree(ctx context.Context, source, target string) error {
 	})
 }
 
+const (
+	nativeDownloadsFolder = "guoyuan-downloads"
+	legacyDownloadsFolder = "zhenguojian-downloads"
+)
+
 func (engine *nativeEngine) moveDownloads(ctx context.Context, parent string) error {
 	if !filepath.IsAbs(parent) {
 		return errors.New("请选择有效的保存目录")
@@ -127,7 +132,7 @@ func (engine *nativeEngine) moveDownloads(ctx context.Context, parent string) er
 		return errors.New("请等待本地媒体处理完成后再迁移")
 	}
 	defer engine.mu.Unlock()
-	target := filepath.Join(filepath.Clean(parent), "zhenguojian-downloads")
+	target := filepath.Join(filepath.Clean(parent), nativeDownloadsFolder)
 	manager.mu.Lock()
 	if manager.loadErr != nil {
 		manager.mu.Unlock()
@@ -158,6 +163,11 @@ func (engine *nativeEngine) moveDownloads(ctx context.Context, parent string) er
 	} else if !os.IsNotExist(statErr) {
 		manager.mu.Unlock()
 		return errors.New("无法读取目标目录，请检查权限后重试")
+	}
+	legacy := filepath.Join(filepath.Clean(parent), legacyDownloadsFolder)
+	if _, legacyErr := os.Stat(filepath.Join(legacy, "index.json")); legacyErr == nil {
+		manager.mu.Unlock()
+		return engine.adoptDownloads(legacy)
 	}
 	manager.moving = true
 	for id, job := range manager.jobs {
