@@ -15,6 +15,8 @@ import 'lan_sync_models.dart';
 
 part 'local_store_sync.dart';
 
+const _backupApps = {'guoyuan', 'zhenguojian'};
+
 class LocalStore extends ChangeNotifier {
   LocalStore(this.preferences) {
     _initialize();
@@ -916,7 +918,7 @@ class LocalStore extends ChangeNotifier {
       throw const FormatException('备份文件过大');
     }
     final data = jsonDecode(content) as Map<String, dynamic>;
-    if (data['schema'] != 1 || data['app'] != 'guoyuan') {
+    if (data['schema'] != 1 || !_backupApps.contains(data['app'])) {
       throw const FormatException('不支持的备份格式');
     }
     final profiles = _readProfiles(data['profiles']);
