@@ -1,4 +1,4 @@
-package com.duanju.duanju_app
+package com.guoyuan.duanju
 
 import io.flutter.embedding.android.FlutterActivity
 import android.app.UiModeManager

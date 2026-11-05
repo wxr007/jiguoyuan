@@ -36,7 +36,7 @@ class AppBuildTests(unittest.TestCase):
     def test_ios_branding_can_switch_editions_without_replacing_bundle_identity(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / 'Info.plist'
-            original = {'CFBundleIdentifier': 'com.duanju.duanjuApp', 'CFBundleVersion': '9'}
+            original = {'CFBundleIdentifier': 'com.guoyuan.duanju', 'CFBundleVersion': '9'}
             path.write_bytes(plistlib.dumps(original))
             for enabled in [True, False]:
                 configure(path, dart_defines('ALL_SOURCES=' + str(enabled).lower()))
