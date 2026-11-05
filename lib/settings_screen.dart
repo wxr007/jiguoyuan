@@ -765,6 +765,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   );
 }
 
+class _DownloadTarget {
+  const _DownloadTarget({
+    required this.path,
+    required this.label,
+    required this.detail,
+    required this.icon,
+    this.needsPublicAccess = false,
+  });
+
+  final String path;
+  final String label;
+  final String detail;
+  final IconData icon;
+  final bool needsPublicAccess;
+}
+
 class StorageScreen extends StatefulWidget {
   const StorageScreen({
     super.key,
@@ -801,47 +817,132 @@ class _StorageScreenState extends State<StorageScreen> {
     }
   }
 
+  static const _downloadFolder = 'zhenguojian-downloads';
+
   Future<void> _move() async {
-    String? parent;
-    if (Platform.isAndroid || Platform.isIOS) {
-      final support = await getApplicationSupportDirectory();
-      final directories = <String, String>{support.path: '应用内部存储'};
-      if (Platform.isAndroid) {
-        final external = await getExternalStorageDirectories() ?? [];
-        for (var i = 0; i < external.length; i++) {
-          directories[external[i].path] = i == 0
-              ? '设备共享存储（应用目录）'
-              : 'SD 卡 ${i + 1}（应用目录）';
-        }
-      } else {
-        final documents = await getApplicationDocumentsDirectory();
-        directories[documents.path] = '文件 App 可见目录';
+    final current = await widget.repository.downloadDirectory();
+    if (!mounted) return;
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      final parent = await FilePicker.getDirectoryPath(
+        dialogTitle: '选择下载保存位置',
+      );
+      if (parent == null || !mounted) return;
+      await _migrate(parent, isPublic: false);
+      return;
+    }
+    final targets = <_DownloadTarget>[];
+    final support = await getApplicationSupportDirectory();
+    targets.add(
+      _DownloadTarget(
+        path: support.path,
+        label: '应用内部存储',
+        detail: '卸载应用时一并删除',
+        icon: Icons.smartphone_rounded,
+      ),
+    );
+    if (Platform.isAndroid) {
+      final external = await getExternalStorageDirectories() ?? [];
+      for (var i = 0; i < external.length; i++) {
+        targets.add(
+          _DownloadTarget(
+            path: external[i].path,
+            label: i == 0 ? '设备共享存储（应用目录）' : 'SD 卡 ${i + 1}（应用目录）',
+            detail: '卸载应用时一并删除',
+            icon: Icons.sd_storage_outlined,
+          ),
+        );
       }
-      if (!mounted) return;
-      parent = await showDialog<String>(
-        context: context,
-        builder: (context) => SimpleDialog(
-          title: const Text('选择下载位置'),
-          children: [
-            for (final entry in directories.entries)
-              SimpleDialogOption(
-                onPressed: () => Navigator.pop(context, entry.key),
-                child: Text(entry.value),
-              ),
-          ],
+      final public = _publicDownloadPath(external);
+      if (public != null) {
+        targets.add(
+          _DownloadTarget(
+            path: public,
+            label: '公共下载目录',
+            detail: '$public/$_downloadFolder · 重装应用不删除',
+            icon: Icons.folder_shared_outlined,
+            needsPublicAccess: true,
+          ),
+        );
+      }
+    } else {
+      final documents = await getApplicationDocumentsDirectory();
+      targets.add(
+        _DownloadTarget(
+          path: documents.path,
+          label: '文件 App 可见目录',
+          detail: '卸载应用时一并删除',
+          icon: Icons.folder_outlined,
         ),
       );
-    } else {
-      parent = await FilePicker.getDirectoryPath(dialogTitle: '选择下载保存位置');
     }
-    if (parent == null || !mounted) return;
+    if (!mounted) return;
+    final chosen = await showDialog<_DownloadTarget>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('选择下载位置'),
+        children: [
+          for (final target in targets)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, target),
+              child: Row(
+                children: [
+                  Icon(target.icon, size: 24),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(target.label),
+                        const SizedBox(height: 2),
+                        Text(
+                          target.detail,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_isCurrentDownload(current, target.path))
+                    Icon(
+                      Icons.check_rounded,
+                      size: 22,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+    if (chosen == null || !mounted) return;
+    if (_isCurrentDownload(current, chosen.path)) {
+      setState(() => _error = '下载目录已在该位置，无需迁移');
+      return;
+    }
+    if (chosen.needsPublicAccess && !await _ensurePublicAccess()) return;
+    if (!mounted) return;
+    final problem = await _probeDirectory(chosen.path);
+    if (!mounted) return;
+    if (problem != null) {
+      setState(() => _error = '目标目录不可写：$problem');
+      return;
+    }
+    await _migrate(chosen.path, isPublic: chosen.needsPublicAccess);
+  }
+
+  Future<void> _migrate(String parent, {required bool isPublic}) async {
+    final target = '$parent/$_downloadFolder';
+    final reusable = await File('$target/index.json').exists();
+    if (!mounted) return;
+    final message = reusable
+        ? '该位置已有本应用的下载记录：\n$target\n\n确认后直接读取其中的视频与记录，不复制也不删除文件。'
+        : '将视频、合并成品及导出内容迁移到：\n$target\n\n'
+              '下载会先暂停，复制成功后清理旧目录。请保证目标有足够空间，并在完成后继续下载。'
+              '${isPublic ? '\n\n该位置属于公共存储，卸载或重装应用不会删除文件，但其他应用和设备可以直接访问这些文件。' : ''}';
     final yes = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('迁移已下载内容？'),
-        content: Text(
-          '将视频、合并成品及导出内容迁移到：\n$parent\n\n下载会先暂停，复制成功后清理旧目录。请保证目标有足够空间，并在完成后继续下载。',
-        ),
+        title: Text(reusable ? '继续使用该目录？' : '迁移已下载内容？'),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -849,7 +950,7 @@ class _StorageScreenState extends State<StorageScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('迁移'),
+            child: Text(reusable ? '使用' : '迁移'),
           ),
         ],
       ),
@@ -866,6 +967,62 @@ class _StorageScreenState extends State<StorageScreen> {
       if (mounted) setState(() => _error = error.toString());
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  String? _publicDownloadPath(List<Directory> external) {
+    for (final directory in external) {
+      final path = directory.path;
+      final index = path.indexOf('/Android/data/');
+      if (index > 0) return '${path.substring(0, index)}/Download';
+    }
+    return null;
+  }
+
+  bool _isCurrentDownload(String directory, String parent) {
+    if (directory.isEmpty) return false;
+    final base = parent.endsWith('/')
+        ? parent.substring(0, parent.length - 1)
+        : parent;
+    return directory == '$base/downloads' || directory == '$base/$_downloadFolder';
+  }
+
+  Future<bool> _ensurePublicAccess() async {
+    if (!Platform.isAndroid) return true;
+    if (await AppDevice.exportStorageAccess()) return true;
+    if (!mounted) return false;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('需要所有文件访问权限'),
+        content: const Text('下载到公共目录需要在系统设置中允许“管理所有文件”。授权后返回本页重新选择。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              unawaited(AppDevice.openExportStorageSettings());
+            },
+            child: const Text('去授权'),
+          ),
+        ],
+      ),
+    );
+    return false;
+  }
+
+  Future<String?> _probeDirectory(String path) async {
+    try {
+      await Directory(path).create(recursive: true);
+      final probe = File('$path/.duanju-write-test');
+      await probe.writeAsString('ok', flush: true);
+      await probe.delete();
+      return null;
+    } catch (error) {
+      return error.toString();
     }
   }
 

@@ -148,9 +148,16 @@ func (engine *nativeEngine) moveDownloads(ctx context.Context, parent string) er
 		manager.mu.Unlock()
 		return errors.New("新目录不能与原下载目录互相包含")
 	}
-	if _, err := os.Stat(target); !os.IsNotExist(err) {
+	if info, statErr := os.Stat(target); statErr == nil {
+		if !info.IsDir() {
+			manager.mu.Unlock()
+			return errors.New("目标中已有同名文件，请选择其他位置")
+		}
 		manager.mu.Unlock()
-		return errors.New("目标中已有应用下载目录，请选择空目录，避免覆盖文件")
+		return engine.adoptDownloads(target)
+	} else if !os.IsNotExist(statErr) {
+		manager.mu.Unlock()
+		return errors.New("无法读取目标目录，请检查权限后重试")
 	}
 	manager.moving = true
 	for id, job := range manager.jobs {
@@ -189,6 +196,56 @@ func (engine *nativeEngine) moveDownloads(ctx context.Context, parent string) er
 	}
 	manager.root = target
 	_ = os.RemoveAll(source)
+	return nil
+}
+
+func (engine *nativeEngine) adoptDownloads(target string) error {
+	manager := engine.downloads
+	if _, err := os.Stat(filepath.Join(target, "index.json")); err != nil {
+		return errors.New("目标文件夹中没有下载记录，无法继续使用；请选择其他位置")
+	}
+	manager.mu.Lock()
+	if manager.closed || manager.moving {
+		manager.mu.Unlock()
+		return errors.New("下载目录正在处理，请稍后重试")
+	}
+	if target == manager.root {
+		manager.mu.Unlock()
+		return nil
+	}
+	previous := manager.root
+	manager.moving = true
+	for id, job := range manager.jobs {
+		if job.State == "queued" || job.State == "downloading" {
+			job.State = "paused"
+		}
+		if cancel := manager.active[id]; cancel != nil {
+			cancel()
+		}
+	}
+	manager.mu.Unlock()
+	manager.workers.Wait()
+	manager.mu.Lock()
+	defer manager.mu.Unlock()
+	defer func() { manager.moving = false }()
+	restore := func() {
+		manager.jobs = map[string]*nativeDownloadRecord{}
+		manager.root = previous
+		manager.loadErr = manager.load()
+	}
+	manager.jobs = map[string]*nativeDownloadRecord{}
+	manager.root = target
+	manager.loadErr = nil
+	if err := manager.load(); err != nil {
+		restore()
+		return errors.New("该目录的下载记录无法读取，已保留原下载目录：" + err.Error())
+	}
+	data, _ := json.Marshal(map[string]string{"directory": target})
+	if err := nativeDownloadWrite(filepath.Join(engine.directory, "download-location.json"), data); err != nil {
+		restore()
+		return errors.New("保存下载目录失败，已保留原下载目录")
+	}
+	_ = manager.saveLocked()
 	return nil
 }
 
