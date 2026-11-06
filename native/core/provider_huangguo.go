@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 
@@ -265,8 +266,9 @@ func (d *Downloader) fetchHuangguoAIDetail(ctx context.Context, sourceID string)
 	if sourceID == "" {
 		return Drama{}, nil, fmt.Errorf("empty huangguoai sourceID")
 	}
-	detailURL := strings.TrimRight(huangguoAIBaseURL, "/") + "/detail/" + url.PathEscape(sourceID) + "/"
-	body, err := d.fetchProviderText(ctx, detailURL, huangguoAIBaseURL+"/")
+	base := strings.TrimRight(d.providerBaseURL(sourceHuangguoAI), "/")
+	detailURL := base + "/detail/" + url.PathEscape(sourceID) + "/"
+	body, err := d.fetchProviderText(ctx, detailURL, base+"/")
 	if err != nil {
 		return Drama{}, nil, err
 	}
@@ -358,6 +360,14 @@ func (d *Downloader) fetchHuangguoVideoDetail(ctx context.Context, sourceID stri
 }
 
 func (d *Downloader) fetchProviderText(ctx context.Context, rawURL, referer string) (string, error) {
+	return d.fetchProviderBody(ctx, http.MethodGet, rawURL, referer, nil, "")
+}
+
+func (d *Downloader) fetchProviderJSON(ctx context.Context, rawURL, referer string, payload []byte) (string, error) {
+	return d.fetchProviderBody(ctx, http.MethodPost, rawURL, referer, payload, "application/json")
+}
+
+func (d *Downloader) fetchProviderBody(ctx context.Context, method, rawURL, referer string, payload []byte, contentType string) (string, error) {
 	retries := d.cfg.Retries
 	if retries <= 0 {
 		retries = 3
@@ -389,11 +399,19 @@ func (d *Downloader) fetchProviderText(ctx context.Context, rawURL, referer stri
 			if len(candidates) > 1 {
 				timeout = 5 * time.Second
 			}
-			req, err := http.NewRequestWithContext(ctx, http.MethodGet, candidate, nil)
+			var requestBody io.Reader
+			if len(payload) > 0 {
+				requestBody = bytes.NewReader(payload)
+			}
+			req, err := http.NewRequestWithContext(ctx, method, candidate, requestBody)
 			if err != nil {
 				return "", err
 			}
 			req.Header.Set("User-Agent", userAgent)
+			if contentType != "" {
+				req.Header.Set("Content-Type", contentType)
+				req.Header.Set("Accept", "application/json")
+			}
 			if agent, ok := ctx.Value(providerTextUserAgentKey{}).(string); ok && agent != "" {
 				req.Header.Set("User-Agent", agent)
 			}
