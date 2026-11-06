@@ -45,7 +45,7 @@ Source names are romanized Chinese platform names; the app interface shows the o
 | Yeguo (full) | API categories, catalog, detail and episodes; route discovery and fallback routes, pending verification | Paged online source search |
 | Diguo (full) | Web categories, catalog, detail and episodes; vplayer signature parsing, pending verification | Paged online source search |
 | Huangguo Video (full) | List, detail and episodes | Filter already-loaded dramas |
-| Huangguo AI (full) | List, categories, detail and episodes; playback resolves `/api/videos/{id}/play` first and falls back to page parsing, pending device verification | Filter already-loaded dramas |
+| Huangguo AI (full) | Detail and episodes resolve `/api/videos/{id}`, playback resolves `/api/videos/{id}/play`, with page parsing as fallback; pending device verification | Filter already-loaded dramas |
 | Huangguo Classic (full) | API categories, list, detail and episodes | Filter already-loaded dramas |
 | Yaguo (full) | Xingya API categories, catalog, detail and episodes; login token caching, pending verification | Online source search |
 | Maoguo (full) | Qimao signed API catalog, detail and episodes, pending verification | Online source search |
@@ -161,7 +161,7 @@ Compared against the feature list of the legacy drama libraries (`../短剧库`,
 
 | ID | Feature | Status and to verify |
 | --- | --- | --- |
-| P1-4 | Huangguo AI playback recovery | Playback now requests `/api/videos/{id}/play` first, then the edge envelope, then page parsing; the development network cannot resolve the domain, so real playback still needs a reachable entry |
+| P1-4 | Huangguo AI playback recovery | Detail, episodes and playback now prefer the `/api/videos/*` endpoints with page parsing as fallback; the development network cannot resolve the domain, so real playback still needs a reachable entry |
 | P1-6 | Hongguo category recommendations | Implemented, pending verification: recommendation cursor, session and dedupe records persisted, current content kept on failure |
 | P1-7 | Sorting and complete metadata | Implemented, pending verification: sorting and filters in the title bar, metadata passed across sources |
 | P2-8 | Metadata fields and three-state VIP | Implemented, pending verification: unknown / free / VIP states, unknown never overwrites known, source management supports batched backfill |

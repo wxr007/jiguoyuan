@@ -266,6 +266,12 @@ func (d *Downloader) fetchHuangguoAIDetail(ctx context.Context, sourceID string)
 	if sourceID == "" {
 		return Drama{}, nil, fmt.Errorf("empty huangguoai sourceID")
 	}
+	apiErr := error(nil)
+	if drama, chapters, err := d.fetchHuangguoAIDetailAPI(ctx, sourceID); err != nil {
+		apiErr = err
+	} else {
+		return drama, chapters, nil
+	}
 	base := strings.TrimRight(d.providerBaseURL(sourceHuangguoAI), "/")
 	detailURL := base + "/detail/" + url.PathEscape(sourceID) + "/"
 	body, err := d.fetchProviderText(ctx, detailURL, base+"/")
@@ -281,6 +287,9 @@ func (d *Downloader) fetchHuangguoAIDetail(ctx context.Context, sourceID string)
 		}
 	}
 	if len(episodes) == 0 {
+		if apiErr != nil {
+			return drama, nil, fmt.Errorf("%w；页面也未解析到分集", apiErr)
+		}
 		return drama, nil, nil
 	}
 	var chapters []Chapter

@@ -44,6 +44,23 @@ func TestHuangguoAIPlayAddressAcceptsEnvelopeAndFlatPayload(t *testing.T) {
 	}
 }
 
+func TestHuangguoAIChapterKeepsLegacyKeys(t *testing.T) {
+	base := "https://huangguoai.com"
+	first := huangguoAIChapter(base, "12", 1, "")
+	if first.ID != providerChapterID(sourceHuangguoAI, "12", "auto-1") ||
+		first.PageURL != "https://huangguoai.com/video/12/" ||
+		first.Title != "第1集" {
+		t.Fatalf("first chapter: %+v", first)
+	}
+	third := huangguoAIChapter(base, "12", 3, "第 3 集")
+	if third.ID != providerChapterID(sourceHuangguoAI, "12", "ep-3") ||
+		third.PageURL != "https://huangguoai.com/video/12/ep-3/" ||
+		third.Title != "第 3 集" ||
+		string(third.CurrentEpisode) != "3" {
+		t.Fatalf("third chapter: %+v", third)
+	}
+}
+
 func TestHuangguoAIPlayAddressReportsSiteFailures(t *testing.T) {
 	base := "https://huangguoai.com"
 	if _, err := huangguoAIPlayAddress(`{"status":0,"msg":"播放已下架"}`, base); err == nil ||
