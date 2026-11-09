@@ -127,3 +127,21 @@ func TestMigrationRejectsContainmentAndSymbolicLinks(t *testing.T) {
 		t.Fatal("removed linked directory")
 	}
 }
+
+func TestDownloadRootStaysOutOfMediaStore(t *testing.T) {
+	engine, _ := storageFixture(t)
+	if _, err := os.Stat(filepath.Join(engine.downloads.root, ".nomedia")); err != nil {
+		t.Fatal("download root missing .nomedia")
+	}
+	if err := engine.moveDownloads(context.Background(), t.TempDir()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(engine.downloads.root, ".nomedia")); err != nil {
+		t.Fatal("migrated download root missing .nomedia")
+	}
+	restarted := newNativeDownloads(engine)
+	defer restarted.close()
+	if _, err := os.Stat(filepath.Join(restarted.root, ".nomedia")); err != nil {
+		t.Fatal("reopened download root missing .nomedia")
+	}
+}

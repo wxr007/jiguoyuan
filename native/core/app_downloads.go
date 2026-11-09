@@ -109,6 +109,7 @@ func (manager *nativeDownloads) load() error {
 	if err := os.MkdirAll(manager.root, 0700); err != nil {
 		return errors.New("无法创建下载目录，请检查存储空间和权限")
 	}
+	nativeHideFromMediaStore(manager.root)
 	path := filepath.Join(manager.root, "index.json")
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {

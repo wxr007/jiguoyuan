@@ -113,6 +113,14 @@ func nativeCopyTree(ctx context.Context, source, target string) error {
 
 const nativeDownloadsFolder = "guoyuan-downloads"
 
+func nativeHideFromMediaStore(directory string) {
+	path := filepath.Join(directory, ".nomedia")
+	if _, err := os.Stat(path); err == nil {
+		return
+	}
+	_ = os.WriteFile(path, nil, 0600)
+}
+
 func (engine *nativeEngine) moveDownloads(ctx context.Context, parent string) error {
 	if !filepath.IsAbs(parent) {
 		return errors.New("请选择有效的保存目录")
@@ -197,6 +205,7 @@ func (engine *nativeEngine) moveDownloads(ctx context.Context, parent string) er
 		return errors.New("保存下载目录失败，原文件已保留")
 	}
 	manager.root = target
+	nativeHideFromMediaStore(target)
 	_ = os.RemoveAll(source)
 	return nil
 }
